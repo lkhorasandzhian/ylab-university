@@ -10,10 +10,10 @@ import lombok.AllArgsConstructor;
 @ToString(exclude = "password")
 @AllArgsConstructor
 public class User {
-    private final String username;
+    private final @NonNull String username;
     @Getter(AccessLevel.NONE)
-    private final String password;
-    private final Role role;
+    private final @NonNull String password;
+    private final @NonNull Role role;
 
     public boolean checkPassword(@NonNull String input) {
         return input.equals(password);
