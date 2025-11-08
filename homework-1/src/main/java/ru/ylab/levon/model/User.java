@@ -1,6 +1,10 @@
 package ru.ylab.levon.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.NonNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 
 @Getter
 @ToString(exclude = "password")
