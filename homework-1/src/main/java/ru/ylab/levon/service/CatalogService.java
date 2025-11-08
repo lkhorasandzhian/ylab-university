@@ -3,6 +3,8 @@ package ru.ylab.levon.service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import ru.ylab.levon.model.Product;
@@ -45,5 +47,31 @@ public class CatalogService {
         if (description != null) product.setDescription(description);
 
         return true;
+    }
+
+    public List<Product> findByCategory(@NonNull String category) {
+        return products.values().stream()
+                .filter(p -> p.getCategory().equalsIgnoreCase(category))
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> findByBrand(@NonNull String brand) {
+        return products.values().stream()
+                .filter(p -> p.getBrand().equalsIgnoreCase(brand))
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> findByPriceRange(double minPrice, double maxPrice) {
+        return products.values().stream()
+                .filter(p -> p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> search(@NonNull String keyword) {
+        String lower = keyword.toLowerCase();
+        return products.values().stream()
+                .filter(p -> p.getName().toLowerCase().contains(lower)
+                        || (p.getDescription() != null && p.getDescription().toLowerCase().contains(lower)))
+                .collect(Collectors.toList());
     }
 }
