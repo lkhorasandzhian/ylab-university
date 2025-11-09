@@ -33,10 +33,8 @@ public class ConsoleMenu {
 
     private void showLoginMenu() {
         System.out.println("\n=== Авторизация ===");
-        System.out.print("Логин: ");
-        String username = scanner.nextLine();
-        System.out.print("Пароль: ");
-        String password = scanner.nextLine();
+        String username = readString("Логин: ");
+        String password = readString("Пароль: ");
 
         if (userService.login(username, password)) {
             System.out.println("Успешный вход. \nПривет, " + username + "!");
@@ -92,12 +90,9 @@ public class ConsoleMenu {
         }
 
         System.out.println("=== Добавление товара ===");
-        System.out.print("Название: ");
-        String name = scanner.nextLine();
-        System.out.print("Категория: ");
-        String category = scanner.nextLine();
-        System.out.print("Бренд: ");
-        String brand = scanner.nextLine();
+        String name = readString("Название: ");
+        String category = readString("Категория: ");
+        String brand = readString("Бренд: ");
         double price = readDouble("Цена: ");
         System.out.print("Описание (можно пустое): ");
         String description = scanner.nextLine();
@@ -116,8 +111,7 @@ public class ConsoleMenu {
             return;
         }
 
-        System.out.print("Введите ID товара: ");
-        String id = scanner.nextLine();
+        String id = readString("Введите ID товара: ");
 
         Product product = catalogService.getProduct(id);
         if (product == null) {
@@ -126,22 +120,13 @@ public class ConsoleMenu {
         }
 
         System.out.println("Текущие данные: " + product);
-        System.out.print("Новое название (Enter — без изменений): ");
-        String name = scanner.nextLine();
-        System.out.print("Новая категория (Enter — без изменений): ");
-        String category = scanner.nextLine();
-        System.out.print("Новый бренд (Enter — без изменений): ");
-        String brand = scanner.nextLine();
+        String name = readOptionalString("Новое название (Enter — без изменений): ");
+        String category = readOptionalString("Новая категория (Enter — без изменений): ");
+        String brand = readOptionalString("Новый бренд (Enter — без изменений): ");
         Double price = readOptionalDouble("Новая цена (Enter — без изменений): ");
-        System.out.print("Новое описание (Enter — без изменений): ");
-        String description = scanner.nextLine();
+        String description = readOptionalString("Новое описание (Enter — без изменений): ");
 
-        catalogService.updateProduct(id,
-                name.isBlank() ? null : name,
-                category.isBlank() ? null : category,
-                brand.isBlank() ? null : brand,
-                price,
-                description.isBlank() ? null : description);
+        catalogService.updateProduct(id, name, category, brand, price, description);
 
         auditService.log(userService.getCurrentUser().getUsername(), "Изменён товар: " + id);
         System.out.println("Товар обновлён.");
@@ -153,8 +138,7 @@ public class ConsoleMenu {
             return;
         }
 
-        System.out.print("Введите ID товара для удаления: ");
-        String id = scanner.nextLine();
+        String id = readString("Введите ID товара для удаления: ");
 
         catalogService.removeProduct(id);
 
@@ -226,6 +210,17 @@ public class ConsoleMenu {
         System.exit(0);
     }
 
+    private String readString(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (!input.isBlank()) {
+                return input;
+            }
+            System.out.println("Ошибка: значение не может быть пустым. Повторите ввод.");
+        }
+    }
+
     private double readDouble(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -236,6 +231,12 @@ public class ConsoleMenu {
                 System.out.println("Ошибка: введите корректное число.");
             }
         }
+    }
+
+    private String readOptionalString(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
+        return input.isBlank() ? null : input;
     }
 
     @SuppressWarnings("SameParameterValue")
