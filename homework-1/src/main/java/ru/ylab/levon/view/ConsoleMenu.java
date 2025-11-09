@@ -9,18 +9,38 @@ import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.service.*;
 
+/**
+ * Класс {@code ConsoleMenu} реализует консольный пользовательский интерфейс
+ * для взаимодействия с приложением Product Catalog Service.
+ * <p>
+ * Предоставляет меню для авторизации, регистрации, работы с каталогом товаров,
+ * выполнения операций CRUD, поиска и просмотра аудита.
+ * В зависимости от роли пользователя (ADMIN/USER) доступен различный функционал.
+ */
 public class ConsoleMenu {
     private final CatalogService catalogService;
     private final UserService userService;
     private final AuditService auditService;
     private final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Создаёт консольное меню, связанное с указанными сервисами.
+     *
+     * @param catalogService сервис каталога товаров
+     * @param userService    сервис пользователей и авторизации
+     * @param auditService   сервис аудита действий
+     */
     public ConsoleMenu(CatalogService catalogService, UserService userService, AuditService auditService) {
         this.catalogService = catalogService;
         this.userService = userService;
         this.auditService = auditService;
     }
 
+    /**
+     * Запускает основной цикл работы консольного интерфейса.
+     * В зависимости от состояния авторизации отображает меню входа
+     * или основное меню пользователя.
+     */
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
         while (true) {
@@ -32,6 +52,10 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Отображает главное меню входа с опциями:
+     * вход, регистрация, завершение работы.
+     */
     private void showLoginMenu() {
         System.out.println("\n=== Главное меню входа ===");
         System.out.println("""
@@ -51,6 +75,9 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Обрабатывает процесс авторизации пользователя.
+     */
     private void handleLogin() {
         System.out.println("\n=== Авторизация ===");
         String username = readString("Логин: ");
@@ -64,6 +91,9 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Обрабатывает процесс регистрации нового пользователя.
+     */
     private void handleRegistration() {
         System.out.println("\n=== Регистрация ===");
         String username = readString("Логин: ");
@@ -77,6 +107,10 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Отображает основное меню приложения для авторизованных пользователей.
+     * В зависимости от роли предоставляет доступ к различным функциям.
+     */
     private void showMainMenu() {
         User current = userService.getCurrentUser();
         System.out.println("\n=== Главное меню ===");
@@ -105,6 +139,9 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Отображает все товары в каталоге.
+     */
     private void listProducts() {
         var products = catalogService.getAllProductsCollection();
         if (products.isEmpty()) {
@@ -114,6 +151,9 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Добавляет новый товар (доступно только администратору).
+     */
     private void addProduct() {
         if (!userService.isAdmin()) {
             System.out.println("Только администратор может добавлять товары.");
@@ -136,6 +176,9 @@ public class ConsoleMenu {
         System.out.println("Товар добавлен.");
     }
 
+    /**
+     * Изменяет существующий товар (доступно только администратору).
+     */
     private void updateProduct() {
         if (!userService.isAdmin()) {
             System.out.println("Только администратор может изменять товары.");
@@ -143,7 +186,6 @@ public class ConsoleMenu {
         }
 
         String id = readString("Введите ID товара: ");
-
         Product product = catalogService.getProduct(id);
         if (product == null) {
             System.out.println("Товар не найден.");
@@ -163,6 +205,9 @@ public class ConsoleMenu {
         System.out.println(isUpdated ? "Товар обновлён." : "Товар без изменений.");
     }
 
+    /**
+     * Удаляет товар из каталога (доступно только администратору).
+     */
     private void removeProduct() {
         if (!userService.isAdmin()) {
             System.out.println("Только администратор может удалять товары.");
@@ -170,13 +215,15 @@ public class ConsoleMenu {
         }
 
         String id = readString("Введите ID товара для удаления: ");
-
         catalogService.removeProduct(id);
 
         auditService.log(userService.getCurrentUser().getUsername(), "Удалён товар: " + id);
         System.out.println("Товар удалён.");
     }
 
+    /**
+     * Выполняет поиск или фильтрацию товаров по выбранному критерию.
+     */
     private void searchProducts() {
         System.out.println("""
                 === Поиск / фильтрация ===
@@ -220,6 +267,9 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Отображает журнал аудита действий пользователей (только для администратора).
+     */
     private void showAudit() {
         if (!userService.isAdmin()) {
             System.out.println("Доступ запрещён. Только для ADMIN.");
@@ -230,17 +280,29 @@ public class ConsoleMenu {
         auditService.getAll().forEach(System.out::println);
     }
 
+    /**
+     * Выполняет выход из системы текущего пользователя.
+     */
     private void logout() {
         auditService.log(userService.getCurrentUser().getUsername(), "Выход из системы");
         userService.logout();
         System.out.println("Вы вышли из системы.");
     }
 
+    /**
+     * Завершает работу приложения.
+     */
     private void exit() {
         System.out.println("Завершение работы программы.");
         System.exit(0);
     }
 
+    /**
+     * Считывает обязательную строку из консоли.
+     *
+     * @param prompt приглашение для ввода
+     * @return непустая строка
+     */
     private String readString(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -252,6 +314,12 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Считывает число с плавающей точкой из консоли.
+     *
+     * @param prompt приглашение для ввода
+     * @return корректное значение типа double
+     */
     private double readDouble(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -264,12 +332,25 @@ public class ConsoleMenu {
         }
     }
 
+    /**
+     * Считывает необязательную строку. Пустая строка трактуется как {@code null}.
+     *
+     * @param prompt приглашение для ввода
+     * @return строка либо {@code null}, если введено пустое значение
+     */
     private String readOptionalString(String prompt) {
         System.out.print(prompt);
         String input = scanner.nextLine().trim();
         return input.isBlank() ? null : input;
     }
 
+    /**
+     * Считывает необязательное число с плавающей точкой.
+     * Пустая строка трактуется как {@code null}.
+     *
+     * @param prompt приглашение для ввода
+     * @return значение {@link Double} либо {@code null}, если введено пустое значение
+     */
     @SuppressWarnings("SameParameterValue")
     private Double readOptionalDouble(String prompt) {
         System.out.print(prompt);
