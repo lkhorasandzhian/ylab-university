@@ -10,7 +10,7 @@ import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.AuditRecord;
 
 public class DataStorage {
-    private static final String DATA_DIR = "data/";
+    private static final String DATA_DIR = "serialize_data/";
     private static final String PRODUCTS_FILE = DATA_DIR + "products.dat";
     private static final String USERS_FILE = DATA_DIR + "users.dat";
     private static final String AUDIT_FILE = DATA_DIR + "audit.dat";
