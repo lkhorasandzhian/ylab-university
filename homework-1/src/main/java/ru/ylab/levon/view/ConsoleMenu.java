@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.User;
+import ru.ylab.levon.model.Role;
 import ru.ylab.levon.service.*;
 
 public class ConsoleMenu {
@@ -32,6 +33,25 @@ public class ConsoleMenu {
     }
 
     private void showLoginMenu() {
+        System.out.println("\n=== Главное меню входа ===");
+        System.out.println("""
+                1. Войти
+                2. Зарегистрироваться
+                0. Завершить работу
+                """);
+
+        System.out.print("Выбор: ");
+        String choice = scanner.nextLine();
+
+        switch (choice) {
+            case "1" -> handleLogin();
+            case "2" -> handleRegistration();
+            case "0" -> exit();
+            default -> System.out.println("Неверный выбор! Попробуйте снова.");
+        }
+    }
+
+    private void handleLogin() {
         System.out.println("\n=== Авторизация ===");
         String username = readString("Логин: ");
         String password = readString("Пароль: ");
@@ -41,6 +61,19 @@ public class ConsoleMenu {
             auditService.log(username, "Вход в систему");
         } else {
             System.out.println("Неверное имя пользователя или пароль");
+        }
+    }
+
+    private void handleRegistration() {
+        System.out.println("\n=== Регистрация ===");
+        String username = readString("Логин: ");
+        String password = readString("Пароль: ");
+
+        if (userService.register(new User(username, password, Role.USER))) {
+            System.out.println("Пользователь успешно зарегистрирован.");
+            auditService.log(username, "Регистрация нового пользователя");
+        } else {
+            System.out.println("Ошибка: пользователь с таким именем уже существует.");
         }
     }
 
@@ -56,7 +89,6 @@ public class ConsoleMenu {
                     5. Поиск/фильтрация
                     6. Просмотреть аудит (только ADMIN)
                     7. Выйти из системы
-                    0. Завершить работу
                 """);
 
         System.out.print("Выбор: ");
@@ -69,7 +101,6 @@ public class ConsoleMenu {
             case "5" -> searchProducts();
             case "6" -> showAudit();
             case "7" -> logout();
-            case "0" -> exit();
             default -> System.out.println("Неверный выбор!");
         }
     }
