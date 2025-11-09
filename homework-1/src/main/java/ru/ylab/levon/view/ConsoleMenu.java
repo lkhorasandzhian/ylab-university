@@ -75,7 +75,7 @@ public class ConsoleMenu {
     }
 
     private void listProducts() {
-        var products = catalogService.getAllProducts();
+        var products = catalogService.getAllProductsCollection();
         if (products.isEmpty()) {
             System.out.println("Каталог пуст.");
         } else {

@@ -29,8 +29,12 @@ public class CatalogService {
         return products.get(id);
     }
 
-    public Collection<Product> getAllProducts() {
+    public Collection<Product> getAllProductsCollection() {
         return products.values();
+    }
+
+    public Map<String, Product> getAllProducts() {
+        return new HashMap<>(products);
     }
 
     public void removeProduct(@NonNull String id) {

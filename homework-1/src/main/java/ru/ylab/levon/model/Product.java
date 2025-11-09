@@ -1,5 +1,8 @@
 package ru.ylab.levon.model;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,7 +12,10 @@ import lombok.AllArgsConstructor;
 @Getter
 @ToString
 @AllArgsConstructor
-public class Product {
+public class Product implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final @NonNull String id;
     private @NonNull String name;
     private @NonNull String category;

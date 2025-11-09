@@ -1,5 +1,8 @@
 package ru.ylab.levon.model;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.ToString;
 import lombok.NonNull;
@@ -9,7 +12,10 @@ import lombok.AllArgsConstructor;
 @Getter
 @ToString(exclude = "password")
 @AllArgsConstructor
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final @NonNull String username;
     @Getter(AccessLevel.NONE)
     private final @NonNull String password;
