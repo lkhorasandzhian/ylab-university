@@ -9,9 +9,17 @@ import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
 
 public class UserService {
-    private final Map<String, User> users = new HashMap<>();
+    private final Map<String, User> users;
     @Getter
     private User currentUser;
+
+    public UserService() {
+        this.users = new HashMap<>();
+    }
+
+    public UserService(Map<String, User> users) {
+        this.users = new HashMap<>(users);
+    }
 
     public boolean register(@NonNull User user) {
         if (users.containsKey(user.getUsername())) {

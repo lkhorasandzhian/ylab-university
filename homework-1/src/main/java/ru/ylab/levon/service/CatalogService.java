@@ -11,7 +11,15 @@ import ru.ylab.levon.model.Product;
 
 
 public class CatalogService {
-    private final Map<String, Product> products = new HashMap<>();
+    private final Map<String, Product> products;
+
+    public CatalogService() {
+        this.products = new HashMap<>();
+    }
+
+    public CatalogService(Map<String, Product> products) {
+        this.products = new HashMap<>(products);
+    }
 
     public void addProduct(@NonNull Product product) {
         products.put(product.getId(), product);

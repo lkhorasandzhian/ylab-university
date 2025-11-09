@@ -8,7 +8,15 @@ import ru.ylab.levon.model.AuditRecord;
 
 
 public class AuditService {
-    private final List<AuditRecord> logs = new ArrayList<>();
+    private final List<AuditRecord> logs;
+
+    public AuditService() {
+        this.logs = new ArrayList<>();
+    }
+
+    public AuditService(List<AuditRecord> auditRecords) {
+        this.logs = new ArrayList<>(auditRecords);
+    }
 
     public void log(String username, String action) {
         logs.add(new AuditRecord(username, action));
