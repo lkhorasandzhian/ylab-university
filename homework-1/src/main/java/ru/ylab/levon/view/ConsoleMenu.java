@@ -325,7 +325,11 @@ public class ConsoleMenu {
             System.out.print(prompt);
             String input = scanner.nextLine();
             try {
-                return Double.parseDouble(input);
+                var number = Double.parseDouble(input);
+                if (number <= 0) {
+                    throw new NumberFormatException();
+                }
+                return number;
             } catch (NumberFormatException e) {
                 System.out.println("Ошибка: введите корректное число.");
             }
@@ -361,7 +365,11 @@ public class ConsoleMenu {
         }
 
         try {
-            return Double.parseDouble(input);
+            var number = Double.parseDouble(input);
+            if (number <= 0) {
+                throw new NumberFormatException();
+            }
+            return number;
         } catch (NumberFormatException e) {
             System.out.println("Ошибка: введено некорректное число. Значение будет пропущено.");
             return null;
