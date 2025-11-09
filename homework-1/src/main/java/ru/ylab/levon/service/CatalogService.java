@@ -46,7 +46,7 @@ public class CatalogService {
         if (price != null) product.setPrice(price);
         if (description != null) product.setDescription(description);
 
-        return true;
+        return name != null || category != null || brand != null || price != null || description != null;
     }
 
     public List<Product> findByCategory(@NonNull String category) {

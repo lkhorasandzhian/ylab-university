@@ -126,10 +126,10 @@ public class ConsoleMenu {
         Double price = readOptionalDouble("Новая цена (Enter — без изменений): ");
         String description = readOptionalString("Новое описание (Enter — без изменений): ");
 
-        catalogService.updateProduct(id, name, category, brand, price, description);
+        boolean isUpdated = catalogService.updateProduct(id, name, category, brand, price, description);
 
         auditService.log(userService.getCurrentUser().getUsername(), "Изменён товар: " + id);
-        System.out.println("Товар обновлён.");
+        System.out.println(isUpdated ? "Товар обновлён." : "Товар без изменений.");
     }
 
     private void removeProduct() {
