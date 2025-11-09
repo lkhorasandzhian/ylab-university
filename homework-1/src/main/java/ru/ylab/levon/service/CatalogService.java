@@ -12,17 +12,23 @@ import ru.ylab.levon.model.Product;
 
 public class CatalogService {
     private final Map<String, Product> products;
+    private final CacheService<String, List<Product>> cache;
+
+    private static final int CACHE_SIZE = 20;
 
     public CatalogService() {
         this.products = new HashMap<>();
+        this.cache = new CacheService<>(CACHE_SIZE);
     }
 
     public CatalogService(Map<String, Product> products) {
         this.products = new HashMap<>(products);
+        this.cache = new CacheService<>(CACHE_SIZE);
     }
 
     public void addProduct(@NonNull Product product) {
         products.put(product.getId(), product);
+        cache.clear();
     }
 
     public Product getProduct(@NonNull String id) {
@@ -39,6 +45,7 @@ public class CatalogService {
 
     public void removeProduct(@NonNull String id) {
         products.remove(id);
+        cache.clear();
     }
 
     public boolean updateProduct(@NonNull String id,
@@ -58,32 +65,66 @@ public class CatalogService {
         if (price != null) product.setPrice(price);
         if (description != null) product.setDescription(description);
 
+        cache.clear();  // Кэш сбрасывается при изменениях
+
         return name != null || category != null || brand != null || price != null || description != null;
     }
 
     public List<Product> findByCategory(@NonNull String category) {
-        return products.values().stream()
+        String key = "category:" + category.toLowerCase();
+        if (cache.contains(key)) {
+            return cache.get(key);
+        }
+
+        List<Product> result = products.values().stream()
                 .filter(p -> p.getCategory().equalsIgnoreCase(category))
                 .collect(Collectors.toList());
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<Product> findByBrand(@NonNull String brand) {
-        return products.values().stream()
+        String key = "brand:" + brand.toLowerCase();
+        if (cache.contains(key)) {
+            return cache.get(key);
+        }
+
+        List<Product> result = products.values().stream()
                 .filter(p -> p.getBrand().equalsIgnoreCase(brand))
                 .collect(Collectors.toList());
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<Product> findByPriceRange(double minPrice, double maxPrice) {
-        return products.values().stream()
+        String key = "price:" + minPrice + "-" + maxPrice;
+        if (cache.contains(key)) {
+            return cache.get(key);
+        }
+
+        List<Product> result = products.values().stream()
                 .filter(p -> p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
                 .collect(Collectors.toList());
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<Product> search(@NonNull String keyword) {
+        String key = "search:" + keyword.toLowerCase();
+        if (cache.contains(key)) {
+            return cache.get(key);
+        }
+
         String lower = keyword.toLowerCase();
-        return products.values().stream()
+        List<Product> result = products.values().stream()
                 .filter(p -> p.getName().toLowerCase().contains(lower)
                         || (p.getDescription() != null && p.getDescription().toLowerCase().contains(lower)))
                 .collect(Collectors.toList());
+
+        cache.put(key, result);
+        return result;
     }
 }
