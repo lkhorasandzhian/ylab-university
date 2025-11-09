@@ -25,3 +25,6 @@ replay_pid*
 
 # IntelliJ IDEA config files
 .idea/
+
+# Serialize Data Folder
+serialize_data/
