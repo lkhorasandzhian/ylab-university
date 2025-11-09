@@ -1,17 +1,21 @@
 package ru.ylab.levon;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+import ru.ylab.levon.model.User;
+import ru.ylab.levon.model.Role;
+import ru.ylab.levon.service.CatalogService;
+import ru.ylab.levon.service.UserService;
+import ru.ylab.levon.service.AuditService;
+import ru.ylab.levon.view.ConsoleMenu;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
-        }
+public class Main {
+    public static void main(String[] args) {
+        var catalogService = new CatalogService();
+        var userService = new UserService();
+        var auditService = new AuditService();
+
+        userService.register(new User("admin", "admin", Role.ADMIN));
+
+        var menu = new ConsoleMenu(catalogService, userService, auditService);
+        menu.run();
     }
 }
