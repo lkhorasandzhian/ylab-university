@@ -112,11 +112,21 @@ public class CatalogService {
             return false;
         }
 
-        if (name != null) product.setName(name);
-        if (category != null) product.setCategory(category);
-        if (brand != null) product.setBrand(brand);
-        if (price != null) product.setPrice(price);
-        if (description != null) product.setDescription(description);
+        if (name != null) {
+            product.setName(name);
+        }
+        if (category != null) {
+            product.setCategory(category);
+        }
+        if (brand != null) {
+            product.setBrand(brand);
+        }
+        if (price != null) {
+            product.setPrice(price);
+        }
+        if (description != null) {
+            product.setDescription(description);
+        }
 
         cache.clear();  // Кэш сбрасывается при изменениях
 

@@ -71,7 +71,9 @@ public class Product implements Serializable {
      * @throws IllegalArgumentException если строка пустая или содержит только пробелы
      */
     public void setCategory(@NonNull String category) {
-        if (category.isBlank()) throw new IllegalArgumentException("Категория не может быть пустой");
+        if (category.isBlank()) {
+            throw new IllegalArgumentException("Категория не может быть пустой");
+        }
         this.category = category;
     }
 
