@@ -21,14 +21,12 @@ public class CatalogService {
     private final Map<String, Product> products;
     private final CacheService<String, List<Product>> cache;
 
-    private static final int CACHE_SIZE = 20;
-
     /**
      * Создаёт пустой каталог товаров.
      */
-    public CatalogService() {
+    public CatalogService(CacheService<String, List<Product>> cache) {
         this.products = new HashMap<>();
-        this.cache = new CacheService<>(CACHE_SIZE);
+        this.cache = cache;
     }
 
     /**
@@ -36,9 +34,10 @@ public class CatalogService {
      *
      * @param products хранилище товаров, где ключ — идентификатор
      */
-    public CatalogService(Map<String, Product> products) {
+    public CatalogService(Map<String, Product> products,
+                          CacheService<String, List<Product>> cache) {
         this.products = new HashMap<>(products);
-        this.cache = new CacheService<>(CACHE_SIZE);
+        this.cache = cache;
     }
 
     /**

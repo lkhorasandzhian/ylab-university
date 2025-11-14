@@ -1,12 +1,16 @@
 package ru.ylab.levon;
 
+import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
+import ru.ylab.levon.service.CacheService;
 import ru.ylab.levon.service.CatalogService;
 import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.service.AuditService;
 import ru.ylab.levon.storage.DataStorage;
 import ru.ylab.levon.view.ConsoleMenu;
+
+import java.util.List;
 
 /**
  * Главный класс приложения Product Catalog Service.
@@ -32,7 +36,8 @@ public class Main {
     public static void main(String[] args) {
         var storage = new DataStorage();
 
-        var catalogService = new CatalogService(storage.loadProducts());
+        var cacheService = new CacheService<String, List<Product>>(20);
+        var catalogService = new CatalogService(storage.loadProducts(), cacheService);
         var userService = new UserService(storage.loadUsers());
         var auditService = new AuditService(storage.loadAudit());
 
