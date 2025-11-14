@@ -1,5 +1,6 @@
 package ru.ylab.levon.view;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
@@ -164,7 +165,7 @@ public class ConsoleMenu {
         String name = readString("Название: ");
         String category = readString("Категория: ");
         String brand = readString("Бренд: ");
-        double price = readDouble("Цена: ");
+        BigDecimal price = readBigDecimal("Цена: ");
         System.out.print("Описание (можно пустое): ");
         String description = scanner.nextLine();
 
@@ -196,7 +197,7 @@ public class ConsoleMenu {
         String name = readOptionalString("Новое название (Enter — без изменений): ");
         String category = readOptionalString("Новая категория (Enter — без изменений): ");
         String brand = readOptionalString("Новый бренд (Enter — без изменений): ");
-        Double price = readOptionalDouble("Новая цена (Enter — без изменений): ");
+        BigDecimal price = readOptionalBigDecimal("Новая цена (Enter — без изменений): ");
         String description = readOptionalString("Новое описание (Enter — без изменений): ");
 
         boolean isUpdated = catalogService.updateProduct(id, name, category, brand, price, description);
@@ -248,8 +249,8 @@ public class ConsoleMenu {
                 result = catalogService.findByBrand(brand);
             }
             case "3" -> {
-                double min = readDouble("Мин. цена: ");
-                double max = readDouble("Макс. цена: ");
+                BigDecimal min = readBigDecimal("Мин. цена: ");
+                BigDecimal max = readBigDecimal("Макс. цена: ");
                 result = catalogService.findByPriceRange(min, max);
             }
             case "4" -> {
@@ -318,15 +319,15 @@ public class ConsoleMenu {
      * Считывает число с плавающей точкой из консоли.
      *
      * @param prompt приглашение для ввода
-     * @return корректное значение типа double
+     * @return корректное значение типа {@link java.math.BigDecimal}
      */
-    private double readDouble(String prompt) {
+    private BigDecimal readBigDecimal(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             try {
-                var number = Double.parseDouble(input);
-                if (number <= 0) {
+                var number = new BigDecimal(input);
+                if (number.compareTo(BigDecimal.ZERO) <= 0) {
                     throw new NumberFormatException();
                 }
                 return number;
@@ -353,20 +354,20 @@ public class ConsoleMenu {
      * Пустая строка трактуется как {@code null}.
      *
      * @param prompt приглашение для ввода
-     * @return значение {@link Double} либо {@code null}, если введено пустое значение
+     * @return значение {@link java.math.BigDecimal} либо {@code null}, если введено пустое значение
      */
     @SuppressWarnings("SameParameterValue")
-    private Double readOptionalDouble(String prompt) {
+    private BigDecimal readOptionalBigDecimal(String prompt) {
         System.out.print(prompt);
-        String input = scanner.nextLine();
+        String input = scanner.nextLine().trim();
 
         if (input.isBlank()) {
             return null;
         }
 
         try {
-            var number = Double.parseDouble(input);
-            if (number <= 0) {
+            var number = new BigDecimal(input);
+            if (number.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new NumberFormatException();
             }
             return number;

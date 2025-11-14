@@ -1,5 +1,6 @@
 package ru.ylab.levon.service;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +106,7 @@ public class CatalogService {
                                  String name,
                                  String category,
                                  String brand,
-                                 Double price,
+                                 BigDecimal price,
                                  String description) {
         Product product = products.get(id);
         if (product == null) {
@@ -180,14 +181,14 @@ public class CatalogService {
      * @param maxPrice максимальная цена
      * @return список товаров, удовлетворяющих диапазону
      */
-    public List<Product> findByPriceRange(double minPrice, double maxPrice) {
+    public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         String key = "price:" + minPrice + "-" + maxPrice;
         if (cache.contains(key)) {
             return cache.get(key);
         }
 
         List<Product> result = products.values().stream()
-                .filter(p -> p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
+                .filter(p -> p.getPrice().compareTo(minPrice) >= 0 && p.getPrice().compareTo(maxPrice) <= 0)
                 .collect(Collectors.toList());
 
         cache.put(key, result);

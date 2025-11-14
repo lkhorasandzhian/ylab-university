@@ -2,6 +2,7 @@ package ru.ylab.levon.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +46,7 @@ public class Product implements Serializable {
     /**
      * Стоимость товара (в условных единицах).
      */
-    private double price;
+    private BigDecimal price;
 
     /**
      * Дополнительное описание товара (может быть пустым или {@code null}).
@@ -94,8 +95,8 @@ public class Product implements Serializable {
      * @param price новая цена
      * @throws IllegalArgumentException если цена меньше либо равна нулю
      */
-    public void setPrice(double price) {
-        if (price <= 0) throw new IllegalArgumentException("Цена должна быть положительной");
+    public void setPrice(BigDecimal price) {
+        if (price.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException("Цена должна быть положительной");
         this.price = price;
     }
 }
