@@ -13,24 +13,24 @@ import ru.ylab.levon.model.User;
 import ru.ylab.levon.service.*;
 
 /**
- * Класс {@code ConsoleMenu} реализует консольный пользовательский интерфейс
- * для взаимодействия с приложением Product Catalog Service.
+ * Консольный пользовательский интерфейс приложения Product Catalog Service.
  * <p>
- * Предоставляет меню для авторизации, регистрации, работы с каталогом товаров,
- * выполнения операций CRUD, поиска и просмотра аудита.
- * В зависимости от роли пользователя (ADMIN/USER) доступен различный функционал.
+ * Предоставляет функционал авторизации, регистрации, просмотра,
+ * поиска и управления товарами, а также просмотра аудита.
+ * Доступные операции зависят от роли текущего пользователя.
  */
 public class ConsoleMenu {
+
     private final CatalogService catalogService;
     private final UserService userService;
     private final AuditService auditService;
     private final Scanner scanner = new Scanner(System.in);
 
     /**
-     * Создаёт консольное меню, связанное с указанными сервисами.
+     * Создаёт экземпляр консольного меню.
      *
-     * @param catalogService сервис каталога товаров
-     * @param userService    сервис пользователей и авторизации
+     * @param catalogService сервис работы с каталогом товаров
+     * @param userService    сервис пользователей и аутентификации
      * @param auditService   сервис аудита действий
      */
     public ConsoleMenu(CatalogService catalogService, UserService userService, AuditService auditService) {
@@ -41,8 +41,10 @@ public class ConsoleMenu {
 
     /**
      * Запускает основной цикл работы консольного интерфейса.
+     * <p>
      * В зависимости от состояния авторизации отображает меню входа
-     * или основное меню пользователя.
+     * или основное меню пользователя. Выполняется бесконечно, пока
+     * приложение не будет завершено.
      */
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
@@ -56,8 +58,12 @@ public class ConsoleMenu {
     }
 
     /**
-     * Отображает главное меню входа с опциями:
-     * вход, регистрация, завершение работы.
+     * Отображает меню входа с возможностью:
+     * <ul>
+     *     <li>войти в систему,</li>
+     *     <li>зарегистрировать нового пользователя,</li>
+     *     <li>завершить работу программы.</li>
+     * </ul>
      */
     private void showLoginMenu() {
         System.out.println("\n=== Главное меню входа ===");
@@ -79,7 +85,8 @@ public class ConsoleMenu {
     }
 
     /**
-     * Обрабатывает процесс авторизации пользователя.
+     * Выполняет попытку авторизации пользователя по логину и паролю.
+     * В случае успеха фиксирует событие в аудите.
      */
     private void handleLogin() {
         System.out.println("\n=== Авторизация ===");
@@ -95,7 +102,10 @@ public class ConsoleMenu {
     }
 
     /**
-     * Обрабатывает процесс регистрации нового пользователя.
+     * Регистрирует нового пользователя с ролью {@link Role#USER}.
+     * <p>
+     * В случае ошибки (например, пользователь уже существует)
+     * выводит соответствующее сообщение.
      */
     private void handleRegistration() {
         System.out.println("\n=== Регистрация ===");
@@ -121,8 +131,8 @@ public class ConsoleMenu {
     }
 
     /**
-     * Отображает основное меню приложения для авторизованных пользователей.
-     * В зависимости от роли предоставляет доступ к различным функциям.
+     * Отображает основное меню приложения для авторизованного пользователя.
+     * Доступные действия зависят от роли (ADMIN / USER).
      */
     private void showMainMenu() {
         User current = userService.getCurrentUser();
@@ -153,7 +163,8 @@ public class ConsoleMenu {
     }
 
     /**
-     * Отображает все товары в каталоге.
+     * Выводит список всех товаров каталога.
+     * Если список пуст — отображает соответствующее сообщение.
      */
     private void listProducts() {
         var products = catalogService.getAllProducts();
@@ -165,7 +176,10 @@ public class ConsoleMenu {
     }
 
     /**
-     * Добавляет новый товар (доступно только администратору).
+     * Добавляет новый товар на основе введённых пользователем данных.
+     * <p>
+     * Доступно только пользователям с ролью ADMIN.
+     * В случае ошибок валидации выводит сообщение об ошибке.
      */
     private void addProduct() {
         if (!userService.isAdmin()) {
@@ -194,7 +208,12 @@ public class ConsoleMenu {
     }
 
     /**
-     * Изменяет существующий товар (доступно только администратору).
+     * Обновляет данные существующего товара.
+     * <p>
+     * Позволяет изменять только выбранные поля.
+     * Доступно только ADMIN.
+     *
+     * @see ProductUpdateDto
      */
     private void updateProduct() {
         if (!userService.isAdmin()) {
@@ -231,7 +250,8 @@ public class ConsoleMenu {
     }
 
     /**
-     * Удаляет товар из каталога (доступно только администратору).
+     * Удаляет товар по заданному идентификатору.
+     * Доступно только пользователям с ролью ADMIN.
      */
     private void removeProduct() {
         if (!userService.isAdmin()) {
@@ -247,7 +267,10 @@ public class ConsoleMenu {
     }
 
     /**
-     * Выполняет поиск или фильтрацию товаров по выбранному критерию.
+     * Выполняет поиск или фильтрацию товаров по одному из критериев:
+     * категория, бренд, диапазон цен или ключевое слово.
+     *
+     * @see CatalogService
      */
     private void searchProducts() {
         System.out.println("""
@@ -293,7 +316,9 @@ public class ConsoleMenu {
     }
 
     /**
-     * Отображает журнал аудита действий пользователей (только для администратора).
+     * Отображает журнал аудита действий пользователей.
+     * <p>
+     * Доступно только пользователям с ролью ADMIN.
      */
     private void showAudit() {
         if (!userService.isAdmin()) {
@@ -306,7 +331,8 @@ public class ConsoleMenu {
     }
 
     /**
-     * Выполняет выход из системы текущего пользователя.
+     * Выполняет выход текущего пользователя из системы.
+     * Действие фиксируется в аудите.
      */
     private void logout() {
         auditService.log(userService.getCurrentUser().getUsername(), "Выход из системы");
@@ -315,7 +341,7 @@ public class ConsoleMenu {
     }
 
     /**
-     * Завершает работу приложения.
+     * Завершает работу приложения с помощью {@link System#exit(int)}.
      */
     private void exit() {
         System.out.println("Завершение работы программы.");
@@ -323,10 +349,10 @@ public class ConsoleMenu {
     }
 
     /**
-     * Считывает обязательную строку из консоли.
+     * Считывает строку из консоли, запрещая пустой ввод.
      *
-     * @param prompt приглашение для ввода
-     * @return непустая строка
+     * @param prompt текст приглашения
+     * @return введённая строка
      */
     private String readString(String prompt) {
         System.out.print(prompt);
@@ -334,10 +360,11 @@ public class ConsoleMenu {
     }
 
     /**
-     * Считывает число с плавающей точкой из консоли.
+     * Считывает обязательное значение типа {@link BigDecimal}.
+     * Повторяет ввод до получения корректного числа.
      *
-     * @param prompt приглашение для ввода
-     * @return корректное значение типа {@link java.math.BigDecimal}
+     * @param prompt текст приглашения
+     * @return валидное числовое значение
      */
     private BigDecimal readBigDecimal(String prompt) {
         while (true) {
@@ -352,10 +379,11 @@ public class ConsoleMenu {
     }
 
     /**
-     * Считывает необязательную строку. Пустая строка трактуется как {@code null}.
+     * Считывает строку, допускающую пустой ввод.
+     * Если введена пустая строка — возвращает {@code null}.
      *
-     * @param prompt приглашение для ввода
-     * @return строка либо {@code null}, если введено пустое значение
+     * @param prompt текст приглашения
+     * @return строка или {@code null}
      */
     private String readOptionalString(String prompt) {
         String input = readString(prompt);
@@ -363,11 +391,11 @@ public class ConsoleMenu {
     }
 
     /**
-     * Считывает необязательное число с плавающей точкой.
-     * Пустая строка трактуется как {@code null}.
+     * Считывает число типа {@link BigDecimal}, допускающее пустой ввод.
+     * Пустая строка интерпретируется как {@code null}.
      *
-     * @param prompt приглашение для ввода
-     * @return значение {@link java.math.BigDecimal} либо {@code null}, если введено пустое значение
+     * @param prompt текст приглашения
+     * @return число или {@code null}
      */
     @SuppressWarnings("SameParameterValue")
     private BigDecimal readOptionalBigDecimal(String prompt) {

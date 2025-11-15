@@ -1,8 +1,9 @@
 package ru.ylab.levon;
 
+import java.util.List;
+
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
-import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.repository.file.FileAuditRepository;
 import ru.ylab.levon.repository.file.FileProductRepository;
@@ -14,28 +15,28 @@ import ru.ylab.levon.service.AuditService;
 import ru.ylab.levon.storage.DataStorage;
 import ru.ylab.levon.view.ConsoleMenu;
 
-import java.util.List;
-
 /**
  * Главный класс приложения Product Catalog Service.
  * <p>
- * Отвечает за инициализацию всех основных компонентов системы:
+ * Отвечает за:
  * <ul>
- *   <li>Загрузку сохранённых данных (товары, пользователи, аудит);</li>
- *   <li>Создание сервисов бизнес-логики;</li>
- *   <li>Инициализацию консольного интерфейса {@link ConsoleMenu};</li>
- *   <li>Регистрацию хука завершения для автоматического сохранения данных.</li>
+ *     <li>Загрузку данных из хранилища;</li>
+ *     <li>Создание репозиториев и сервисов;</li>
+ *     <li>Инициализацию и запуск консольного интерфейса;</li>
+ *     <li>Регистрацию механизма автосохранения при завершении работы приложения.</li>
  * </ul>
- * После запуска создаётся базовый пользователь-администратор
- * (если отсутствует сохранённый список пользователей).
+ * <p>
+ * Если список пользователей пуст, создаётся администратор по умолчанию.
  */
 public class Main {
+
     /**
      * Точка входа в приложение.
      * <p>
-     * Загружает данные, инициализирует сервисы и запускает консольное меню.
+     * Выполняет инициализацию всех компонентов системы,
+     * подготавливает хранилище данных и запускает консольное меню.
      *
-     * @param args аргументы командной строки.
+     * @param args аргументы командной строки (не используются)
      */
     public static void main(String[] args) {
         var storage = new DataStorage();

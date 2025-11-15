@@ -10,9 +10,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 /**
- * Класс {@code User} представляет пользователя системы.
+ * Модель пользователя системы.
  * <p>
- * Содержит информацию об имени пользователя, пароле и роли (например, ADMIN или USER).
+ * Содержит имя пользователя, пароль и роль (ADMIN или USER).
  * Используется для аутентификации и проверки прав доступа.
  */
 @Getter
@@ -28,21 +28,23 @@ public class User implements Serializable {
     private final @NonNull String username;
 
     /**
-     * Пароль пользователя (не выводится в {@code toString()}).
+     * Пароль пользователя.
+     * <p>
+     * Не включается в вывод методов {@code toString()}.
      */
     @Getter(AccessLevel.NONE)
     private final @NonNull String password;
 
     /**
-     * Роль пользователя (например, ADMIN или USER).
+     * Роль пользователя в системе.
      */
     private final @NonNull Role role;
 
     /**
-     * Проверяет корректность введённого пароля.
+     * Проверяет соответствие введённого пароля сохранённому значению.
      *
      * @param input введённый пароль
-     * @return {@code true}, если пароль совпадает с сохранённым; {@code false} — иначе
+     * @return {@code true}, если пароль совпадает; {@code false} — иначе
      */
     public boolean checkPassword(@NonNull String input) {
         return input.equals(password);

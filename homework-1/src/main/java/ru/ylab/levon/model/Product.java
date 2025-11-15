@@ -11,10 +11,11 @@ import lombok.NonNull;
 import lombok.AllArgsConstructor;
 
 /**
- * Класс {@code Product} представляет товар в каталоге маркетплейса.
+ * Модель товара в каталоге.
  * <p>
- * Содержит основную информацию о товаре: идентификатор, название, категорию,
- * бренд, цену и описание. Реализует базовую валидацию при изменении данных.
+ * Содержит идентификатор товара, название, категорию, бренд, цену
+ * и дополнительное описание. Предоставляет методы для изменения полей
+ * с базовой валидацией входных данных.
  */
 @Getter
 @ToString
@@ -34,7 +35,7 @@ public class Product implements Serializable {
     private @NonNull String name;
 
     /**
-     * Категория, к которой принадлежит товар.
+     * Категория товара.
      */
     private @NonNull String category;
 
@@ -44,12 +45,12 @@ public class Product implements Serializable {
     private @NonNull String brand;
 
     /**
-     * Стоимость товара (в условных единицах).
+     * Цена товара.
      */
     private BigDecimal price;
 
     /**
-     * Дополнительное описание товара (может быть пустым или {@code null}).
+     * Описание товара (может быть {@code null}).
      */
     @Setter
     private String description;
@@ -58,10 +59,12 @@ public class Product implements Serializable {
      * Устанавливает новое название товара.
      *
      * @param name новое название
-     * @throws IllegalArgumentException если строка пустая или содержит только пробелы
+     * @throws IllegalArgumentException если строка пуста или содержит только пробелы
      */
     public void setName(@NonNull String name) {
-        if (name.isBlank()) throw new IllegalArgumentException("Название не может быть пустым");
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Название не может быть пустым");
+        }
         this.name = name;
     }
 
@@ -69,7 +72,7 @@ public class Product implements Serializable {
      * Устанавливает новую категорию товара.
      *
      * @param category новая категория
-     * @throws IllegalArgumentException если строка пустая или содержит только пробелы
+     * @throws IllegalArgumentException если строка пуста или содержит только пробелы
      */
     public void setCategory(@NonNull String category) {
         if (category.isBlank()) {
@@ -82,21 +85,25 @@ public class Product implements Serializable {
      * Устанавливает новый бренд товара.
      *
      * @param brand новый бренд
-     * @throws IllegalArgumentException если строка пустая или содержит только пробелы
+     * @throws IllegalArgumentException если строка пуста или содержит только пробелы
      */
     public void setBrand(@NonNull String brand) {
-        if (brand.isBlank()) throw new IllegalArgumentException("Бренд не может быть пустым");
+        if (brand.isBlank()) {
+            throw new IllegalArgumentException("Бренд не может быть пустым");
+        }
         this.brand = brand;
     }
 
     /**
-     * Устанавливает цену товара.
+     * Устанавливает новую цену товара.
      *
      * @param price новая цена
-     * @throws IllegalArgumentException если цена меньше либо равна нулю
+     * @throws IllegalArgumentException если цена меньше или равна нулю
      */
     public void setPrice(BigDecimal price) {
-        if (price.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException("Цена должна быть положительной");
+        if (price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Цена должна быть положительной");
+        }
         this.price = price;
     }
 }
