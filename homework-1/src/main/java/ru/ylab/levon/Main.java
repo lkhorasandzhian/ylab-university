@@ -3,6 +3,9 @@ package ru.ylab.levon;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
+import ru.ylab.levon.repository.file.FileAuditRepository;
+import ru.ylab.levon.repository.file.FileProductRepository;
+import ru.ylab.levon.repository.file.FileUserRepository;
 import ru.ylab.levon.service.CacheService;
 import ru.ylab.levon.service.CatalogService;
 import ru.ylab.levon.service.UserService;
@@ -36,22 +39,26 @@ public class Main {
     public static void main(String[] args) {
         var storage = new DataStorage();
 
+        var productRepo = new FileProductRepository(storage.loadProducts());
+        var userRepo = new FileUserRepository(storage.loadUsers());
+        var auditRepo = new FileAuditRepository(storage.loadAudit());
+
         var cacheService = new CacheService<String, List<Product>>(20);
-        var catalogService = new CatalogService(storage.loadProducts(), cacheService);
-        var userService = new UserService(storage.loadUsers());
-        var auditService = new AuditService(storage.loadAudit());
+        var catalogService = new CatalogService(productRepo, cacheService);
+        var userService = new UserService(userRepo);
+        var auditService = new AuditService(auditRepo);
 
         // Создание администратора по умолчанию, если база пользователей пуста.
-        if (userService.getAllUsers().isEmpty()) {
+        if (userService.getStorage().isEmpty()) {
             userService.register(new User("admin", "admin", Role.ADMIN));
         }
 
         // Хук завершения: сохраняет все данные при выходе из программы.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             storage.saveData(
-                    catalogService.getAllProducts(),
-                    userService.getAllUsers(),
-                    auditService.getAll()
+                    catalogService.getStorage(),
+                    userService.getStorage(),
+                    auditService.getStorage()
             );
             System.out.println("\nДанные успешно сохранены перед завершением.");
         }));

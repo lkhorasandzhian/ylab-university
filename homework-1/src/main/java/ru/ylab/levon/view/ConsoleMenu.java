@@ -144,7 +144,7 @@ public class ConsoleMenu {
      * Отображает все товары в каталоге.
      */
     private void listProducts() {
-        var products = catalogService.getAllProductsCollection();
+        var products = catalogService.getAllProducts();
         if (products.isEmpty()) {
             System.out.println("Каталог пуст.");
         } else {
