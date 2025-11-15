@@ -2,6 +2,7 @@ package ru.ylab.levon.service;
 
 import lombok.Getter;
 import lombok.NonNull;
+import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.repository.api.UserRepository;
@@ -17,7 +18,16 @@ public class UserService {
         this.repository = repository;
     }
 
-    public boolean register(@NonNull User user) {
+    public boolean register(@NonNull UserCreateDto dto) {
+        if (dto.username().isBlank()) {
+            throw new IllegalArgumentException("Логин не может быть пустым.");
+        }
+
+        if (dto.password().isBlank()) {
+            throw new IllegalArgumentException("Пароль не может быть пустым.");
+        }
+
+        User user = new User(dto.username(), dto.password(), dto.role());
         return repository.save(user);
     }
 

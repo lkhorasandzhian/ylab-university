@@ -3,11 +3,13 @@ package ru.ylab.levon.view;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
+import ru.ylab.levon.dto.ProductCreateDto;
+import ru.ylab.levon.dto.ProductUpdateDto;
+import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
-import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
+import ru.ylab.levon.model.User;
 import ru.ylab.levon.service.*;
 
 /**
@@ -100,11 +102,21 @@ public class ConsoleMenu {
         String username = readString("Логин: ");
         String password = readString("Пароль: ");
 
-        if (userService.register(new User(username, password, Role.USER))) {
+        var userCreateDto = new UserCreateDto(username, password, Role.USER);
+
+        boolean isNewUser;
+        try {
+            isNewUser = userService.register(userCreateDto);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка! " + e.getMessage());
+            return;
+        }
+
+        if (isNewUser) {
             System.out.println("Пользователь успешно зарегистрирован.");
             auditService.log(username, "Регистрация нового пользователя");
         } else {
-            System.out.println("Ошибка: пользователь с таким именем уже существует.");
+            System.out.println("Ошибка! Пользователь с таким именем уже существует.");
         }
     }
 
@@ -166,12 +178,16 @@ public class ConsoleMenu {
         String category = readString("Категория: ");
         String brand = readString("Бренд: ");
         BigDecimal price = readBigDecimal("Цена: ");
-        System.out.print("Описание (можно пустое): ");
-        String description = scanner.nextLine();
+        String description = readOptionalString("Описание (можно пустое): ");
 
-        Product product = new Product(UUID.randomUUID().toString(), name, category, brand, price,
-                description.isBlank() ? null : description);
-        catalogService.addProduct(product);
+        var productCreateDto = new ProductCreateDto(name, category, brand, price, description);
+
+        try {
+            catalogService.addProduct(productCreateDto);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка! " + e.getMessage());
+            return;
+        }
 
         auditService.log(userService.getCurrentUser().getUsername(), "Добавлен товар: " + name);
         System.out.println("Товар добавлен.");
@@ -200,7 +216,15 @@ public class ConsoleMenu {
         BigDecimal price = readOptionalBigDecimal("Новая цена (Enter — без изменений): ");
         String description = readOptionalString("Новое описание (Enter — без изменений): ");
 
-        boolean isUpdated = catalogService.updateProduct(id, name, category, brand, price, description);
+        var productUpdateDto = new ProductUpdateDto(name, category, brand, price, description);
+
+        boolean isUpdated;
+        try {
+            isUpdated = catalogService.updateProduct(id, productUpdateDto);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка! " + e.getMessage());
+            return;
+        }
 
         auditService.log(userService.getCurrentUser().getUsername(), "Изменён товар: " + id);
         System.out.println(isUpdated ? "Товар обновлён." : "Товар без изменений.");
@@ -305,14 +329,8 @@ public class ConsoleMenu {
      * @return непустая строка
      */
     private String readString(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
-            if (!input.isBlank()) {
-                return input;
-            }
-            System.out.println("Ошибка: значение не может быть пустым. Повторите ввод.");
-        }
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
     }
 
     /**
@@ -326,13 +344,9 @@ public class ConsoleMenu {
             System.out.print(prompt);
             String input = scanner.nextLine().trim();
             try {
-                var number = new BigDecimal(input);
-                if (number.compareTo(BigDecimal.ZERO) <= 0) {
-                    throw new NumberFormatException();
-                }
-                return number;
+                return new BigDecimal(input);
             } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите корректное число.");
+                System.out.println("Ошибка! Введено некорректное число. Повторите попытку.");
             }
         }
     }
@@ -344,8 +358,7 @@ public class ConsoleMenu {
      * @return строка либо {@code null}, если введено пустое значение
      */
     private String readOptionalString(String prompt) {
-        System.out.print(prompt);
-        String input = scanner.nextLine().trim();
+        String input = readString(prompt);
         return input.isBlank() ? null : input;
     }
 
@@ -366,13 +379,9 @@ public class ConsoleMenu {
         }
 
         try {
-            var number = new BigDecimal(input);
-            if (number.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new NumberFormatException();
-            }
-            return number;
+            return new BigDecimal(input);
         } catch (NumberFormatException e) {
-            System.out.println("Ошибка: введено некорректное число. Значение будет пропущено.");
+            System.out.println("Ошибка! Введено некорректное число. Значение будет пропущено.");
             return null;
         }
     }

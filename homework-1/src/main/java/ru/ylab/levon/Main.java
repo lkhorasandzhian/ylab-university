@@ -1,5 +1,6 @@
 package ru.ylab.levon;
 
+import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.model.Role;
@@ -50,7 +51,7 @@ public class Main {
 
         // Создание администратора по умолчанию, если база пользователей пуста.
         if (userService.getStorage().isEmpty()) {
-            userService.register(new User("admin", "admin", Role.ADMIN));
+            userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
         }
 
         // Хук завершения: сохраняет все данные при выходе из программы.
