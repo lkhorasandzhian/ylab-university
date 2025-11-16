@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 public class User {
     private Long id;
     private final @NonNull String username;
-    @Getter(AccessLevel.NONE)
     private final @NonNull String password;
     private final @NonNull Role role;
 
