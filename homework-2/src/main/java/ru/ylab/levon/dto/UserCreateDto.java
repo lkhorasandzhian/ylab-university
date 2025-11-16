@@ -1,5 +1,6 @@
 package ru.ylab.levon.dto;
 
+import lombok.NonNull;
 import ru.ylab.levon.model.Role;
 
 /**
@@ -13,7 +14,7 @@ import ru.ylab.levon.model.Role;
  * @param role     роль нового пользователя
  */
 public record UserCreateDto(
-        String username,
-        String password,
-        Role role
+        @NonNull String username,
+        @NonNull String password,
+        @NonNull Role role
 ) {}
