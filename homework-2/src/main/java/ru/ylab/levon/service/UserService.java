@@ -14,7 +14,6 @@ import ru.ylab.levon.repository.api.UserRepository;
  * и доступ к хранилищу пользователей.
  */
 public class UserService {
-
     private final UserRepository repository;
 
     /**
@@ -41,19 +40,18 @@ public class UserService {
      *
      * @param dto данные для создания пользователя
      * @return {@code true}, если пользователь был сохранён успешно;
-     *         {@code false}, если пользователь с таким именем уже существует
+     * {@code false}, если пользователь с таким именем уже существует
      * @throws IllegalArgumentException если логин или пароль пустые
      */
     public boolean register(@NonNull UserCreateDto dto) {
         if (dto.username().isBlank()) {
             throw new IllegalArgumentException("Логин не может быть пустым.");
         }
-
         if (dto.password().isBlank()) {
             throw new IllegalArgumentException("Пароль не может быть пустым.");
         }
 
-        User user = new User(dto.username(), dto.password(), dto.role());
+        User user = new User(null, dto.username(), dto.password(), dto.role());
         return repository.save(user);
     }
 
@@ -63,7 +61,7 @@ public class UserService {
      * @param username имя пользователя
      * @param password пароль
      * @return {@code true}, если аутентификация выполнена успешно;
-     *         {@code false}, если логин или пароль неверны
+     * {@code false}, если логин или пароль неверны
      */
     public boolean login(@NonNull String username, @NonNull String password) {
         User user = repository.findByUsername(username);
@@ -107,14 +105,5 @@ public class UserService {
      */
     public User findUser(String username) {
         return repository.findByUsername(username);
-    }
-
-    /**
-     * Возвращает текущее хранилище пользователей.
-     *
-     * @return карта пользователей
-     */
-    public java.util.Map<String, User> getStorage() {
-        return repository.getStorage();
     }
 }

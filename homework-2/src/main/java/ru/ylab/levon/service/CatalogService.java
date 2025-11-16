@@ -3,7 +3,6 @@ package ru.ylab.levon.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
@@ -19,26 +18,25 @@ import ru.ylab.levon.repository.api.ProductRepository;
  * а также кеширование результатов поисковых запросов.
  */
 public class CatalogService {
-
     private final ProductRepository repository;
-    private final CacheService<String, List<Product>> cache;
+    private final CacheService<String, List<Product>> cacheService;
 
     /**
      * Создаёт сервис каталога.
      *
-     * @param repository репозиторий товаров
-     * @param cache      кеш для результатов поиска
+     * @param repository   репозиторий товаров
+     * @param cacheService кеш для результатов поиска
      */
     public CatalogService(ProductRepository repository,
-                          CacheService<String, List<Product>> cache) {
+                          CacheService<String, List<Product>> cacheService) {
         this.repository = repository;
-        this.cache = cache;
+        this.cacheService = cacheService;
     }
 
     /**
      * Добавляет новый товар в каталог.
      * <p>
-     * Выполняет валидацию данных и генерирует уникальный идентификатор товара.
+     * Выполняет валидацию данных и генерирует уникальный идентификатор товара через БД.
      *
      * @param dto данные для создания нового товара
      * @throws IllegalArgumentException если переданные поля некорректны
@@ -47,21 +45,18 @@ public class CatalogService {
         if (dto.name().isBlank()) {
             throw new IllegalArgumentException("Название товара не может быть пустым.");
         }
-
         if (dto.category().isBlank()) {
             throw new IllegalArgumentException("Категория не может быть пустой.");
         }
-
         if (dto.brand().isBlank()) {
             throw new IllegalArgumentException("Бренд не может быть пустым.");
         }
-
         if (dto.price().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Цена должна быть больше 0.");
         }
 
         Product product = new Product(
-                UUID.randomUUID().toString(),
+                null,
                 dto.name(),
                 dto.category(),
                 dto.brand(),
@@ -70,7 +65,7 @@ public class CatalogService {
         );
 
         repository.save(product);
-        cache.clear();
+        cacheService.clear();
     }
 
     /**
@@ -79,7 +74,7 @@ public class CatalogService {
      * @param id идентификатор товара
      * @return товар или {@code null}, если не найден
      */
-    public Product getProduct(@NonNull String id) {
+    public Product getProduct(@NonNull Long id) {
         return repository.findById(id);
     }
 
@@ -93,22 +88,13 @@ public class CatalogService {
     }
 
     /**
-     * Возвращает внутреннее хранилище товаров.
-     *
-     * @return карта товаров по ID
-     */
-    public java.util.Map<String, Product> getStorage() {
-        return repository.getStorage();
-    }
-
-    /**
      * Удаляет товар по идентификатору.
      *
      * @param id идентификатор товара
      */
-    public void removeProduct(@NonNull String id) {
+    public void removeProduct(@NonNull Long id) {
         repository.delete(id);
-        cache.clear();
+        cacheService.clear();
     }
 
     /**
@@ -120,22 +106,34 @@ public class CatalogService {
      * @param dto обновляемые поля
      * @return {@code true}, если товар обновлён; {@code false}, если не найден
      */
-    public boolean updateProduct(@NonNull String id, @NonNull ProductUpdateDto dto) {
+    public boolean updateProduct(@NonNull Long id, @NonNull ProductUpdateDto dto) {
         Product p = repository.findById(id);
         if (p == null) {
             return false;
         }
 
         if (dto.name() != null) {
+            if (dto.name().isBlank()) {
+                throw new IllegalArgumentException("Название товара не может быть пустым.");
+            }
             p.setName(dto.name());
         }
         if (dto.category() != null) {
+            if (dto.category().isBlank()) {
+                throw new IllegalArgumentException("Категория не может быть пустой.");
+            }
             p.setCategory(dto.category());
         }
         if (dto.brand() != null) {
+            if (dto.brand().isBlank()) {
+                throw new IllegalArgumentException("Бренд не может быть пустым.");
+            }
             p.setBrand(dto.brand());
         }
         if (dto.price() != null) {
+            if (dto.price().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Цена должна быть больше 0.");
+            }
             p.setPrice(dto.price());
         }
         if (dto.description() != null) {
@@ -143,7 +141,7 @@ public class CatalogService {
         }
 
         repository.save(p);
-        cache.clear();
+        cacheService.clear();
         return true;
     }
 
@@ -157,13 +155,15 @@ public class CatalogService {
      */
     public List<Product> findByCategory(@NonNull String category) {
         String key = "category:" + category.toLowerCase();
-        if (cache.contains(key)) return cache.get(key);
+        if (cacheService.contains(key)) {
+            return cacheService.get(key);
+        }
 
         List<Product> result = repository.findAll().stream()
                 .filter(p -> p.getCategory().equalsIgnoreCase(category))
                 .collect(Collectors.toList());
 
-        cache.put(key, result);
+        cacheService.put(key, result);
         return result;
     }
 
@@ -177,13 +177,15 @@ public class CatalogService {
      */
     public List<Product> findByBrand(@NonNull String brand) {
         String key = "brand:" + brand.toLowerCase();
-        if (cache.contains(key)) return cache.get(key);
+        if (cacheService.contains(key)) {
+            return cacheService.get(key);
+        }
 
         List<Product> result = repository.findAll().stream()
                 .filter(p -> p.getBrand().equalsIgnoreCase(brand))
                 .collect(Collectors.toList());
 
-        cache.put(key, result);
+        cacheService.put(key, result);
         return result;
     }
 
@@ -198,14 +200,16 @@ public class CatalogService {
      */
     public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         String key = "range:" + minPrice + "-" + maxPrice;
-        if (cache.contains(key)) return cache.get(key);
+        if (cacheService.contains(key)) {
+            return cacheService.get(key);
+        }
 
         List<Product> result = repository.findAll().stream()
                 .filter(p -> p.getPrice().compareTo(minPrice) >= 0
                         && p.getPrice().compareTo(maxPrice) <= 0)
                 .collect(Collectors.toList());
 
-        cache.put(key, result);
+        cacheService.put(key, result);
         return result;
     }
 
@@ -219,7 +223,9 @@ public class CatalogService {
      */
     public List<Product> search(@NonNull String keyword) {
         String key = "search:" + keyword.toLowerCase();
-        if (cache.contains(key)) return cache.get(key);
+        if (cacheService.contains(key)) {
+            return cacheService.get(key);
+        }
 
         String lower = keyword.toLowerCase();
         List<Product> result = repository.findAll().stream()
@@ -228,7 +234,7 @@ public class CatalogService {
                         && p.getDescription().toLowerCase().contains(lower)))
                 .collect(Collectors.toList());
 
-        cache.put(key, result);
+        cacheService.put(key, result);
         return result;
     }
 }

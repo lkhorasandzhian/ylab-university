@@ -12,7 +12,6 @@ import ru.ylab.levon.repository.api.AuditRepository;
  * сохранённых событий.
  */
 public class AuditService {
-
     private final AuditRepository repository;
 
     /**
@@ -51,14 +50,5 @@ public class AuditService {
      */
     public List<AuditRecord> getLast(int count) {
         return repository.findLast(count);
-    }
-
-    /**
-     * Возвращает хранилище аудита.
-     *
-     * @return список всех сохранённых записей
-     */
-    public List<AuditRecord> getStorage() {
-        return repository.getStorage();
     }
 }
