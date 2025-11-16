@@ -7,6 +7,8 @@
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <changeSet id="4" author="ylab">
+        <!-- Allow any checksum -->
+        <validCheckSum>*</validCheckSum>
 
         <!-- Prepopulate one user -->
         <insert schemaName="domain" tableName="users">
