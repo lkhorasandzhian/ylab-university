@@ -60,9 +60,9 @@ public class ConsoleMenu {
     /**
      * Отображает меню входа с возможностью:
      * <ul>
-     *     <li>войти в систему,</li>
-     *     <li>зарегистрировать нового пользователя,</li>
-     *     <li>завершить работу программы.</li>
+     *     <li>Войти в систему,</li>
+     *     <li>Зарегистрировать нового пользователя,</li>
+     *     <li>Завершить работу программы.</li>
      * </ul>
      */
     private void showLoginMenu() {
@@ -221,7 +221,7 @@ public class ConsoleMenu {
             return;
         }
 
-        String id = readString("Введите ID товара: ");
+        Long id = readLong("Введите ID товара: ");
         Product product = catalogService.getProduct(id);
         if (product == null) {
             System.out.println("Товар не найден.");
@@ -259,7 +259,7 @@ public class ConsoleMenu {
             return;
         }
 
-        String id = readString("Введите ID товара для удаления: ");
+        Long id = readLong("Введите ID товара для удаления: ");
         catalogService.removeProduct(id);
 
         auditService.log(userService.getCurrentUser().getUsername(), "Удалён товар: " + id);
@@ -357,6 +357,18 @@ public class ConsoleMenu {
     private String readString(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
+    }
+
+    private Long readLong(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            try {
+                return Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка! Введен некорректный ID. Повторите попытку.");
+            }
+        }
     }
 
     /**
