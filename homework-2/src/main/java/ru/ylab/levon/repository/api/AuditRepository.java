@@ -11,7 +11,6 @@ import ru.ylab.levon.model.AuditRecord;
  * и выборки последних N действий.
  */
 public interface AuditRepository {
-
     /**
      * Добавляет новую запись в журнал аудита.
      *
@@ -34,10 +33,4 @@ public interface AuditRepository {
      */
     List<AuditRecord> findLast(int count);
 
-    /**
-     * Возвращает внутреннее хранилище записей аудита.
-     *
-     * @return список всех записей
-     */
-    List<AuditRecord> getStorage();
 }

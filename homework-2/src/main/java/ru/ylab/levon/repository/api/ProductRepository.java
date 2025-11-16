@@ -1,7 +1,6 @@
 package ru.ylab.levon.repository.api;
 
 import java.util.Collection;
-import java.util.Map;
 
 import ru.ylab.levon.model.Product;
 
@@ -11,7 +10,6 @@ import ru.ylab.levon.model.Product;
  * Определяет базовые CRUD-операции и доступ к внутреннему хранилищу товаров.
  */
 public interface ProductRepository {
-
     /**
      * Сохраняет товар в хранилище.
      * <p>
@@ -27,14 +25,14 @@ public interface ProductRepository {
      * @param id идентификатор товара
      * @return товар или {@code null}, если не найден
      */
-    Product findById(String id);
+    Product findById(Long id);
 
     /**
      * Удаляет товар по его идентификатору.
      *
      * @param id идентификатор удаляемого товара
      */
-    void delete(String id);
+    void delete(Long id);
 
     /**
      * Возвращает коллекцию всех товаров.
@@ -42,11 +40,4 @@ public interface ProductRepository {
      * @return коллекция товаров
      */
     Collection<Product> findAll();
-
-    /**
-     * Возвращает внутреннее хранилище товаров.
-     *
-     * @return карта товаров по их идентификаторам
-     */
-    Map<String, Product> getStorage();
 }

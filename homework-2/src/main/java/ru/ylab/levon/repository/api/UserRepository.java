@@ -1,7 +1,5 @@
 package ru.ylab.levon.repository.api;
 
-import java.util.Map;
-
 import ru.ylab.levon.model.User;
 
 /**
@@ -11,7 +9,6 @@ import ru.ylab.levon.model.User;
  * а также доступ к внутреннему хранилищу.
  */
 public interface UserRepository {
-
     /**
      * Сохраняет нового пользователя.
      *
@@ -28,11 +25,4 @@ public interface UserRepository {
      * @return найденный пользователь или {@code null}, если не найден
      */
     User findByUsername(String username);
-
-    /**
-     * Возвращает внутреннее хранилище пользователей.
-     *
-     * @return карта пользователей
-     */
-    Map<String, User> getStorage();
 }
