@@ -1,30 +1,33 @@
 package ru.ylab.levon.model;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * Запись аудита, фиксирующая действие, выполненное пользователем.
- * <p>
- * Содержит имя пользователя, описание действия и временную метку выполнения.
- * Используется сервисом аудита для ведения журнала событий.
- *
- * @param username  имя пользователя, совершившего действие
- * @param action    описание выполненного действия
- * @param timestamp время выполнения действия
- */
-public record AuditRecord(String username, String action, LocalDateTime timestamp) implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.NonNull;
 
-    /**
-     * Создаёт запись аудита, автоматически устанавливая текущую временную метку.
-     *
-     * @param username имя пользователя
-     * @param action   описание действия
-     */
-    public AuditRecord(String username, String action) {
+@Getter
+@ToString
+public class AuditRecord {
+    private Long id;
+    private final @NonNull String username;
+    private final @NonNull String action;
+    private final @NonNull LocalDateTime timestamp;
+
+    public AuditRecord(@NonNull String username, @NonNull String action, @NonNull LocalDateTime timestamp) {
+        this.username = username;
+        this.action = action;
+        this.timestamp = timestamp;
+    }
+
+    public AuditRecord(@NonNull String username, @NonNull String action) {
         this(username, action, LocalDateTime.now());
+    }
+
+    public void setId(Long id) {
+        if (this.id != null) {
+            throw new IllegalStateException("Существующий ID не может быть изменён");
+        }
+        this.id = id;
     }
 }
