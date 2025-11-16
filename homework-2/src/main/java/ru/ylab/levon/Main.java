@@ -1,18 +1,19 @@
 package ru.ylab.levon;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.Role;
-import ru.ylab.levon.repository.file.FileAuditRepository;
-import ru.ylab.levon.repository.file.FileProductRepository;
-import ru.ylab.levon.repository.file.FileUserRepository;
-import ru.ylab.levon.service.CacheService;
-import ru.ylab.levon.service.CatalogService;
-import ru.ylab.levon.service.UserService;
-import ru.ylab.levon.service.AuditService;
-import ru.ylab.levon.storage.DataStorage;
+import ru.ylab.levon.repository.jdbc.JdbcAuditRepository;
+import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
+import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
+import ru.ylab.levon.service.*;
 import ru.ylab.levon.view.ConsoleMenu;
 
 /**
@@ -29,7 +30,6 @@ import ru.ylab.levon.view.ConsoleMenu;
  * Если список пользователей пуст, создаётся администратор по умолчанию.
  */
 public class Main {
-
     /**
      * Точка входа в приложение.
      * <p>
@@ -38,12 +38,19 @@ public class Main {
      *
      * @param args аргументы командной строки (не используются)
      */
-    public static void main(String[] args) {
-        var storage = new DataStorage();
+    @SuppressWarnings("UnnecessaryModifier")
+    public static void main(@SuppressWarnings("unused") String[] args) {
+        System.out.println("\n=== Product Catalog Service ===\n");
 
-        var productRepo = new FileProductRepository(storage.loadProducts());
-        var userRepo = new FileUserRepository(storage.loadUsers());
-        var auditRepo = new FileAuditRepository(storage.loadAudit());
+        Properties props = loadProperties("application.properties");
+
+        HikariDataSource dataSource = initDataSource(props);
+
+        runMigrations(dataSource, props);
+
+        var productRepo = new JdbcProductRepository(dataSource);
+        var userRepo = new JdbcUserRepository(dataSource);
+        var auditRepo = new JdbcAuditRepository(dataSource);
 
         var cacheService = new CacheService<String, List<Product>>(20);
         var catalogService = new CatalogService(productRepo, cacheService);
@@ -51,22 +58,57 @@ public class Main {
         var auditService = new AuditService(auditRepo);
 
         // Создание администратора по умолчанию, если база пользователей пуста.
-        if (userService.getStorage().isEmpty()) {
+        if (userRepo.findByUsername("admin") == null) {
             userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
         }
-
-        // Хук завершения: сохраняет все данные при выходе из программы.
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            storage.saveData(
-                    catalogService.getStorage(),
-                    userService.getStorage(),
-                    auditService.getStorage()
-            );
-            System.out.println("\nДанные успешно сохранены перед завершением.");
-        }));
 
         // Запуск консольного интерфейса приложения.
         var menu = new ConsoleMenu(catalogService, userService, auditService);
         menu.run();
+    }
+
+    private static Properties loadProperties(@SuppressWarnings("SameParameterValue") String file) {
+        try (InputStream is = Main.class.getClassLoader().getResourceAsStream(file)) {
+            if (is == null) {
+                throw new RuntimeException("Не найден файл конфигурации: " + file);
+            }
+            Properties props = new Properties();
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка загрузки конфигурации", e);
+        }
+    }
+
+    private static HikariDataSource initDataSource(Properties props) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(props.getProperty("db.url"));
+        config.setUsername(props.getProperty("db.username"));
+        config.setPassword(props.getProperty("db.password"));
+
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
+        config.setIdleTimeout(60000);
+        config.setConnectionTimeout(30000);
+        config.setMaxLifetime(600000);
+
+        return new HikariDataSource(config);
+    }
+
+    private static void runMigrations(HikariDataSource ds, Properties props) {
+        String changelog = props.getProperty("liquibase.changelog");
+
+        try {
+            new liquibase.command.CommandScope("update")
+                    .addArgumentValue("changeLogFile", changelog)
+                    .addArgumentValue("url", ds.getJdbcUrl())
+                    .addArgumentValue("username", ds.getUsername())
+                    .addArgumentValue("password", ds.getPassword())
+                    .execute();
+
+            System.out.println("Liquibase-миграции успешно применены.");
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка миграции Liquibase", e);
+        }
     }
 }
