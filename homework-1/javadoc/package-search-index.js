@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"ru.ylab.levon"},{"l":"ru.ylab.levon.dto"},{"l":"ru.ylab.levon.model"},{"l":"ru.ylab.levon.repository.api"},{"l":"ru.ylab.levon.repository.file"},{"l":"ru.ylab.levon.service"},{"l":"ru.ylab.levon.storage"},{"l":"ru.ylab.levon.view"}];updateSearchResults();
