@@ -36,3 +36,6 @@ target/
 
 # Serialize Data Folder
 serialize_data/
+
+# Postgres Data Folder
+postgres-data/
