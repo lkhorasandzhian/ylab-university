@@ -1,0 +1,114 @@
+package ru.ylab.levon;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import ru.ylab.levon.dto.UserCreateDto;
+import ru.ylab.levon.model.Product;
+import ru.ylab.levon.model.Role;
+import ru.ylab.levon.repository.jdbc.JdbcAuditRepository;
+import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
+import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
+import ru.ylab.levon.service.*;
+import ru.ylab.levon.view.ConsoleMenu;
+
+/**
+ * Главный класс приложения Product Catalog Service.
+ * <p>
+ * Отвечает за:
+ * <ul>
+ *     <li>Загрузку данных из хранилища;</li>
+ *     <li>Создание репозиториев и сервисов;</li>
+ *     <li>Инициализацию и запуск консольного интерфейса;</li>
+ *     <li>Регистрацию механизма автосохранения при завершении работы приложения.</li>
+ * </ul>
+ * <p>
+ * Если список пользователей пуст, создаётся администратор по умолчанию.
+ */
+public class Main {
+    /**
+     * Точка входа в приложение.
+     * <p>
+     * Выполняет инициализацию всех компонентов системы,
+     * подготавливает хранилище данных и запускает консольное меню.
+     *
+     * @param args аргументы командной строки (не используются)
+     */
+    @SuppressWarnings("UnnecessaryModifier")
+    public static void main(@SuppressWarnings("unused") String[] args) {
+        System.out.println("\n=== Product Catalog Service ===\n");
+
+        Properties props = loadProperties("application.properties");
+
+        HikariDataSource dataSource = initDataSource(props);
+
+        runMigrations(dataSource, props);
+
+        var productRepo = new JdbcProductRepository(dataSource);
+        var userRepo = new JdbcUserRepository(dataSource);
+        var auditRepo = new JdbcAuditRepository(dataSource);
+
+        var cacheService = new CacheService<String, List<Product>>(20);
+        var catalogService = new CatalogService(productRepo, cacheService);
+        var userService = new UserService(userRepo);
+        var auditService = new AuditService(auditRepo);
+
+        // Создание администратора по умолчанию, если база пользователей пуста.
+        if (userRepo.findByUsername("admin") == null) {
+            userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
+        }
+
+        // Запуск консольного интерфейса приложения.
+        var menu = new ConsoleMenu(catalogService, userService, auditService);
+        menu.run();
+    }
+
+    private static Properties loadProperties(@SuppressWarnings("SameParameterValue") String file) {
+        try (InputStream is = Main.class.getClassLoader().getResourceAsStream(file)) {
+            if (is == null) {
+                throw new RuntimeException("Не найден файл конфигурации: " + file);
+            }
+            Properties props = new Properties();
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка загрузки конфигурации", e);
+        }
+    }
+
+    private static HikariDataSource initDataSource(Properties props) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(props.getProperty("db.url"));
+        config.setUsername(props.getProperty("db.username"));
+        config.setPassword(props.getProperty("db.password"));
+
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
+        config.setIdleTimeout(60000);
+        config.setConnectionTimeout(30000);
+        config.setMaxLifetime(600000);
+
+        return new HikariDataSource(config);
+    }
+
+    private static void runMigrations(HikariDataSource ds, Properties props) {
+        String changelog = props.getProperty("liquibase.changelog");
+
+        try {
+            new liquibase.command.CommandScope("update")
+                    .addArgumentValue("changeLogFile", changelog)
+                    .addArgumentValue("url", ds.getJdbcUrl())
+                    .addArgumentValue("username", ds.getUsername())
+                    .addArgumentValue("password", ds.getPassword())
+                    .execute();
+
+            System.out.println("Liquibase-миграции успешно применены.");
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка миграции Liquibase", e);
+        }
+    }
+}
