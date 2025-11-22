@@ -8,6 +8,8 @@
     <artifactId>homework-3</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <packaging>war</packaging>
+
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
@@ -19,6 +21,18 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+        Config INFO:
+        Servlet 6.1.0 & Tomcat 11 — поддерживает doPost;
+        Servlet 6.0.0 & Tomcat 10.1 — НЕ поддерживает doPost.
+        -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
             <scope>provided</scope>
         </dependency>
 
