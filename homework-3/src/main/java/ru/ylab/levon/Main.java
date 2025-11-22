@@ -2,19 +2,11 @@ package ru.ylab.levon;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import ru.ylab.levon.dto.UserCreateDto;
-import ru.ylab.levon.model.Product;
-import ru.ylab.levon.model.Role;
-import ru.ylab.levon.repository.jdbc.JdbcAuditRepository;
-import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
-import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
 import ru.ylab.levon.service.*;
-import ru.ylab.levon.view.ConsoleMenu;
 
 /**
  * Главный класс приложения Product Catalog Service.
@@ -40,31 +32,11 @@ public class Main {
      */
     @SuppressWarnings("UnnecessaryModifier")
     public static void main(@SuppressWarnings("unused") String[] args) {
-        System.out.println("\n=== Product Catalog Service ===\n");
-
         Properties props = loadProperties("application.properties");
-
         HikariDataSource dataSource = initDataSource(props);
-
         runMigrations(dataSource, props);
 
-        var productRepo = new JdbcProductRepository(dataSource);
-        var userRepo = new JdbcUserRepository(dataSource);
-        var auditRepo = new JdbcAuditRepository(dataSource);
-
-        var cacheService = new CacheService<String, List<Product>>(20);
-        var catalogService = new CatalogService(productRepo, cacheService);
-        var userService = new UserService(userRepo);
-        var auditService = new AuditService(auditRepo);
-
-        // Создание администратора по умолчанию, если база пользователей пуста.
-        if (userRepo.findByUsername("admin") == null) {
-            userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
-        }
-
-        // Запуск консольного интерфейса приложения.
-        var menu = new ConsoleMenu(catalogService, userService, auditService);
-        menu.run();
+        System.out.println("БД инициализирована. Приложение запущено в контейнере сервлетов.");
     }
 
     private static Properties loadProperties(@SuppressWarnings("SameParameterValue") String file) {
