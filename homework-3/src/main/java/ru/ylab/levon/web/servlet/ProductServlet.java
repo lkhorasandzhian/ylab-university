@@ -17,6 +17,7 @@ import ru.ylab.levon.model.Role;
 import ru.ylab.levon.service.CatalogService;
 import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
+import ru.ylab.levon.web.util.ValidatorUtils;
 
 @WebServlet(name = "ProductServlet", urlPatterns = {"/products/*"})
 public class ProductServlet extends HttpServlet {
@@ -52,6 +53,14 @@ public class ProductServlet extends HttpServlet {
         } catch (Exception e) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
                     Map.of("error", "Invalid product JSON"));
+            return;
+        }
+
+        var violations = ValidatorUtils.validate(dto);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
+                    Map.of("error", message));
             return;
         }
 
@@ -187,6 +196,14 @@ public class ProductServlet extends HttpServlet {
         } catch (Exception e) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
                     Map.of("error", "Invalid update JSON"));
+            return;
+        }
+
+        var violations = ValidatorUtils.validate(dto);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
+                    Map.of("error", message));
             return;
         }
 

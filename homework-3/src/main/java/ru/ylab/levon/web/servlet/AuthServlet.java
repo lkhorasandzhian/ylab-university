@@ -8,8 +8,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.ylab.levon.dto.UserCreateDto;
+import ru.ylab.levon.dto.UserLoginDto;
 import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
+import ru.ylab.levon.web.util.ValidatorUtils;
 
 @WebServlet(name = "AuthServlet", urlPatterns = {"/auth/*"})
 public class AuthServlet extends HttpServlet {
@@ -47,15 +49,20 @@ public class AuthServlet extends HttpServlet {
         switch (path) {
             case "/login" -> handleLogin(req, resp);
             case "/register" -> handleRegister(req, resp);
-            case "/logout" -> handleLogout(req, resp);
+            case "/logout" -> handleLogout(resp);
             default -> JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND, Map.of("error", "Unknown endpoint"));
         }
     }
 
     private void handleLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        record LoginDto(String username, String password) {}
+        UserLoginDto dto = JsonUtils.readJson(req, UserLoginDto.class);
 
-        LoginDto dto = JsonUtils.readJson(req, LoginDto.class);
+        var violations = ValidatorUtils.validate(dto);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST, Map.of("error", message));
+            return;
+        }
 
         boolean ok = userService.login(dto.username(), dto.password());
 
@@ -70,6 +77,14 @@ public class AuthServlet extends HttpServlet {
     private void handleRegister(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserCreateDto dto = JsonUtils.readJson(req, UserCreateDto.class);
 
+        var violations = ValidatorUtils.validate(dto);
+
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST, Map.of("error", message));
+            return;
+        }
+
         boolean ok = userService.register(dto);
 
         if (!ok) {
@@ -80,7 +95,7 @@ public class AuthServlet extends HttpServlet {
         JsonUtils.writeJson(resp, HttpServletResponse.SC_CREATED, Map.of("status", "created"));
     }
 
-    private void handleLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void handleLogout(HttpServletResponse resp) throws IOException {
         JsonUtils.writeJson(resp, HttpServletResponse.SC_OK, Map.of("status", "logged_out"));
     }
 }
