@@ -11,7 +11,7 @@ import ru.ylab.levon.mapper.AuditMapper;
 import ru.ylab.levon.service.AuditService;
 import ru.ylab.levon.web.util.JsonUtils;
 
-@WebServlet(name = "AuditServlet", urlPatterns = {"/api/audit/*"})
+@WebServlet(name = "AuditServlet", urlPatterns = {"/audit/*"})
 public class AuditServlet extends HttpServlet {
     private AuditService auditService;
 

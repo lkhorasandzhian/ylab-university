@@ -16,7 +16,7 @@ import ru.ylab.levon.model.Product;
 import ru.ylab.levon.service.CatalogService;
 import ru.ylab.levon.web.util.JsonUtils;
 
-@WebServlet(name = "ProductServlet", urlPatterns = {"/api/products/*"})
+@WebServlet(name = "ProductServlet", urlPatterns = {"/products/*"})
 public class ProductServlet extends HttpServlet {
     private CatalogService catalogService;
 

@@ -11,7 +11,7 @@ import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
 
-@WebServlet(name = "AuthServlet", urlPatterns = {"/api/auth/*"})
+@WebServlet(name = "AuthServlet", urlPatterns = {"/auth/*"})
 public class AuthServlet extends HttpServlet {
     private UserService userService;
 
