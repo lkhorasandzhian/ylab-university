@@ -1,39 +1,105 @@
 package ru.ylab.levon.web.config;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import liquibase.command.CommandScope;
+import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
-import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
-import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
+import ru.ylab.levon.model.Role;
 import ru.ylab.levon.repository.jdbc.JdbcAuditRepository;
-import ru.ylab.levon.service.CacheService;
-import ru.ylab.levon.service.UserService;
-import ru.ylab.levon.service.CatalogService;
-import ru.ylab.levon.service.AuditService;
-import ru.ylab.levon.Main;
-
-import java.util.List;
+import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
+import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
+import ru.ylab.levon.service.*;
 
 @WebListener
 public class ApplicationContextListener implements ServletContextListener {
+    private HikariDataSource dataSource;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext ctx = sce.getServletContext();
 
-        var userRepo = new JdbcUserRepository(Main.dataSource);
-        var productRepo = new JdbcProductRepository(Main.dataSource);
-        var auditRepo = new JdbcAuditRepository(Main.dataSource);
+        Properties props = loadProperties("application.properties");
 
-        final int CACHE_SIZE = 20;
-        var cacheService = new CacheService<String, List<Product>>(CACHE_SIZE);
+        dataSource = initDataSource(props);
+
+        runMigrations(dataSource, props);
+
+        var userRepo = new JdbcUserRepository(dataSource);
+        var productRepo = new JdbcProductRepository(dataSource);
+        var auditRepo = new JdbcAuditRepository(dataSource);
+
+        var cacheService = new CacheService<String, List<Product>>(20);
+
         var userService = new UserService(userRepo);
         var catalogService = new CatalogService(productRepo, cacheService);
         var auditService = new AuditService(auditRepo);
 
+        if (userRepo.findByUsername("admin") == null) {
+            System.out.println("Creating Administator...");
+            userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
+        }
+
         ctx.setAttribute("userService", userService);
         ctx.setAttribute("catalogService", catalogService);
         ctx.setAttribute("auditService", auditService);
+
+        System.out.println("=== Application initialized successfully ===");
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        if (dataSource != null) {
+            dataSource.close();
+            System.out.println("HikariCP DataSource closed.");
+        }
+    }
+
+    private Properties loadProperties(String file) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(file)) {
+            if (is == null) {
+                throw new RuntimeException("Config not found: " + file);
+            }
+            Properties props = new Properties();
+            props.load(is);
+            return props;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load config", e);
+        }
+    }
+
+    private HikariDataSource initDataSource(Properties props) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(props.getProperty("db.url"));
+        config.setUsername(props.getProperty("db.username"));
+        config.setPassword(props.getProperty("db.password"));
+        config.setDriverClassName("org.postgresql.Driver");
+
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
+
+        return new HikariDataSource(config);
+    }
+
+    private void runMigrations(HikariDataSource ds, Properties props) {
+        try {
+            new CommandScope("update")
+                    .addArgumentValue("changeLogFile", props.getProperty("liquibase.changelog"))
+                    .addArgumentValue("url", ds.getJdbcUrl())
+                    .addArgumentValue("username", ds.getUsername())
+                    .addArgumentValue("password", ds.getPassword())
+                    .execute();
+            System.out.println("Liquibase migrations applied");
+        } catch (Exception e) {
+            throw new RuntimeException("Liquibase migration error", e);
+        }
     }
 }
