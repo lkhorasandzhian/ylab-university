@@ -22,6 +22,8 @@ import ru.ylab.levon.service.*;
  * Если список пользователей пуст, создаётся администратор по умолчанию.
  */
 public class Main {
+    public static HikariDataSource dataSource;
+
     /**
      * Точка входа в приложение.
      * <p>
@@ -33,7 +35,7 @@ public class Main {
     @SuppressWarnings("UnnecessaryModifier")
     public static void main(@SuppressWarnings("unused") String[] args) {
         Properties props = loadProperties("application.properties");
-        HikariDataSource dataSource = initDataSource(props);
+        dataSource = initDataSource(props);
         runMigrations(dataSource, props);
 
         System.out.println("БД инициализирована. Приложение запущено в контейнере сервлетов.");
