@@ -39,9 +39,10 @@ public class CatalogService {
      * Выполняет валидацию данных и генерирует уникальный идентификатор товара через БД.
      *
      * @param dto данные для создания нового товара
+     * @return созданный продукт
      * @throws IllegalArgumentException если переданные поля некорректны
      */
-    public void addProduct(@NonNull ProductCreateDto dto) {
+    public Product addProduct(@NonNull ProductCreateDto dto) {
         if (dto.name().isBlank()) {
             throw new IllegalArgumentException("Название товара не может быть пустым.");
         }
@@ -66,6 +67,8 @@ public class CatalogService {
 
         repository.save(product);
         cacheService.clear();
+
+        return product;
     }
 
     /**
