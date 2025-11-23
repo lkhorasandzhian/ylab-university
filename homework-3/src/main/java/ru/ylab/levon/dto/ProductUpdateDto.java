@@ -2,6 +2,9 @@ package ru.ylab.levon.dto;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 /**
  * DTO для обновления существующего товара.
  * <p>
@@ -16,9 +19,9 @@ import java.math.BigDecimal;
  * @param description новое описание (или {@code null})
  */
 public record ProductUpdateDto(
-        String name,
-        String category,
-        String brand,
-        BigDecimal price,
+        @Size(min = 1) String name,
+        @Size(min = 1) String category,
+        @Size(min = 1) String brand,
+        @Positive BigDecimal price,
         String description
 ) {}

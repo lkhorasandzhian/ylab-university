@@ -2,7 +2,9 @@ package ru.ylab.levon.dto;
 
 import java.math.BigDecimal;
 
-import lombok.NonNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 /**
  * DTO для создания нового товара.
@@ -17,9 +19,9 @@ import lombok.NonNull;
  * @param description дополнительное описание товара (может быть {@code null})
  */
 public record ProductCreateDto(
-        @NonNull String name,
-        @NonNull String category,
-        @NonNull String brand,
-        @NonNull BigDecimal price,
+        @NotBlank String name,
+        @NotBlank String category,
+        @NotBlank String brand,
+        @NotNull @Positive BigDecimal price,
         String description
 ) {}

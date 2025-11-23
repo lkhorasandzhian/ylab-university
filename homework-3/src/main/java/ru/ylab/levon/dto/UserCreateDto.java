@@ -1,6 +1,6 @@
 package ru.ylab.levon.dto;
 
-import lombok.NonNull;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * DTO для создания нового пользователя.
@@ -12,6 +12,6 @@ import lombok.NonNull;
  * @param password пароль пользователя
  */
 public record UserCreateDto(
-        @NonNull String username,
-        @NonNull String password
+        @NotBlank String username,
+        @NotBlank String password
 ) {}
