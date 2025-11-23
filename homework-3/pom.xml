@@ -42,6 +42,20 @@
             <version>2.17.1</version>
         </dependency>
 
+        <!-- AspectJ runtime -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.9.21</version>
+        </dependency>
+
+        <!-- AspectJ weaver (для LTW) -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.21</version>
+        </dependency>
+
         <!--Jackson Datatype for Serialization of LocalDateTime-->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
