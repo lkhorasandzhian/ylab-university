@@ -13,16 +13,20 @@ import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.mapper.ProductMapper;
 import ru.ylab.levon.model.Product;
+import ru.ylab.levon.model.Role;
 import ru.ylab.levon.service.CatalogService;
+import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
 
 @WebServlet(name = "ProductServlet", urlPatterns = {"/products/*"})
 public class ProductServlet extends HttpServlet {
     private CatalogService catalogService;
+    private UserService userService;
 
     @Override
     public void init() {
         catalogService = (CatalogService) getServletContext().getAttribute("catalogService");
+        userService = (UserService) getServletContext().getAttribute("userService");
     }
 
     /**
@@ -38,6 +42,10 @@ public class ProductServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!ensureLoggedIn(resp) || !ensureAdmin(resp)) {
+            return;
+        }
+
         ProductCreateDto dto;
         try {
             dto = JsonUtils.readJson(req, ProductCreateDto.class);
@@ -89,6 +97,10 @@ public class ProductServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!ensureLoggedIn(resp)) {
+            return;
+        }
+
         String idStr = extractId(req);
 
         if (idStr != null) {
@@ -160,6 +172,10 @@ public class ProductServlet extends HttpServlet {
      */
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!ensureLoggedIn(resp) || !ensureAdmin(resp)) {
+            return;
+        }
+
         Long id = checkID(req, resp);
         if (id == null) {
             return;
@@ -206,6 +222,10 @@ public class ProductServlet extends HttpServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!ensureLoggedIn(resp) || !ensureAdmin(resp)) {
+            return;
+        }
+
         Long id = checkID(req, resp);
         if (id == null) {
             return;
@@ -247,5 +267,25 @@ public class ProductServlet extends HttpServlet {
         }
 
         return id;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean ensureLoggedIn(HttpServletResponse resp) throws IOException {
+        if (userService.getCurrentUser() == null) {
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_UNAUTHORIZED,
+                    Map.of("error", "You must be logged in"));
+            return false;
+        }
+        return true;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean ensureAdmin(HttpServletResponse resp) throws IOException {
+        if (userService.getCurrentUser().getRole() != Role.ADMIN) {
+            JsonUtils.writeJson(resp, HttpServletResponse.SC_FORBIDDEN,
+                    Map.of("error", "Admin rights required"));
+            return false;
+        }
+        return true;
     }
 }
