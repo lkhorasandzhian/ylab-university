@@ -51,8 +51,13 @@ public class UserService {
             throw new IllegalArgumentException("Пароль не может быть пустым.");
         }
 
-        User user = new User(null, dto.username(), dto.password(), dto.role());
+        User user = new User(null, dto.username(), dto.password(), Role.USER);
         return repository.save(user);
+    }
+
+    public boolean registerAdmin() {
+        User admin = new User(null, "admin", "admin", Role.ADMIN);
+        return repository.save(admin);
     }
 
     /**

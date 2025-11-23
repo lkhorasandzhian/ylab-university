@@ -11,10 +11,8 @@ import ru.ylab.levon.model.Role;
  *
  * @param username имя пользователя
  * @param password пароль пользователя
- * @param role     роль нового пользователя
  */
 public record UserCreateDto(
         @NonNull String username,
-        @NonNull String password,
-        @NonNull Role role
+        @NonNull String password
 ) {}

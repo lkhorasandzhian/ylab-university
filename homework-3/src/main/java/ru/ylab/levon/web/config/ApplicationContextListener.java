@@ -43,9 +43,11 @@ public class ApplicationContextListener implements ServletContextListener {
         var catalogService = new CatalogService(productRepo, cacheService);
         var auditService = new AuditService(auditRepo);
 
-        if (userRepo.findByUsername("admin") == null) {
-            System.out.println("Creating Administator...");
-            userService.register(new UserCreateDto("admin", "admin", Role.ADMIN));
+        System.out.println("Creating Administator...");
+        if (userService.registerAdmin()) {
+            System.out.println("Administator has been created.");
+        } else {
+            System.out.println("Administator already exists.");
         }
 
         ctx.setAttribute("userService", userService);
