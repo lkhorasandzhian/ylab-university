@@ -1,7 +1,6 @@
 package ru.ylab.levon.dto;
 
 import lombok.NonNull;
-import ru.ylab.levon.model.Role;
 
 /**
  * DTO для создания нового пользователя.
