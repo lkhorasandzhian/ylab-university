@@ -38,10 +38,10 @@ public class ApplicationContextListener implements ServletContextListener {
         var auditRepo = new JdbcAuditRepository(dataSource);
 
         var cacheService = new CacheService<String, List<Product>>(20);
-
-        var userService = new UserService(userRepo);
-        var catalogService = new CatalogService(productRepo, cacheService);
         var auditService = new AuditService(auditRepo);
+
+        var userService = new UserService(userRepo, auditService);
+        var catalogService = new CatalogService(productRepo, cacheService, auditService, userService);
 
         System.out.println("Creating Administator...");
         if (userService.registerAdmin()) {

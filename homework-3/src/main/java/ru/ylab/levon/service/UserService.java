@@ -15,6 +15,7 @@ import ru.ylab.levon.repository.api.UserRepository;
  */
 public class UserService {
     private final UserRepository repository;
+    private final AuditService auditService;
 
     /**
      * Текущий авторизованный пользователь.
@@ -28,8 +29,9 @@ public class UserService {
      *
      * @param repository репозиторий пользователей
      */
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, AuditService auditService) {
         this.repository = repository;
+        this.auditService = auditService;
     }
 
     /**
@@ -52,12 +54,24 @@ public class UserService {
         }
 
         User user = new User(null, dto.username(), dto.password(), Role.USER);
-        return repository.save(user);
+        boolean isSuccess = repository.save(user);
+
+        if (isSuccess) {
+            auditService.log(user.getUsername(), "REGISTER");
+        }
+
+        return isSuccess;
     }
 
     public boolean registerAdmin() {
         User admin = new User(null, "admin", "admin", Role.ADMIN);
-        return repository.save(admin);
+        boolean isSuccess = repository.save(admin);
+
+        if (isSuccess) {
+            auditService.log(admin.getUsername(), "REGISTER_ADMIN");
+        }
+
+        return isSuccess;
     }
 
     /**
@@ -72,6 +86,7 @@ public class UserService {
         User user = repository.findByUsername(username);
         if (user != null && user.checkPassword(password)) {
             currentUser = user;
+            auditService.log(user.getUsername(), "LOGIN");
             return true;
         }
         return false;
@@ -81,6 +96,9 @@ public class UserService {
      * Выполняет выход текущего пользователя из системы.
      */
     public void logout() {
+        if (currentUser != null) {
+            auditService.log(currentUser.getUsername(), "LOGOUT");
+        }
         currentUser = null;
     }
 
