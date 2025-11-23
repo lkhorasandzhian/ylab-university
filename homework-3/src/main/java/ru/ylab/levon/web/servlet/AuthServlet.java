@@ -20,9 +20,24 @@ public class AuthServlet extends HttpServlet {
         userService = (UserService) getServletContext().getAttribute("userService");
     }
 
+    /**
+     * Обрабатывает POST-запросы, связанные с аутентификацией пользователей.
+     *
+     * <p>Поддерживаемые эндпоинты:</p>
+     * <ul>
+     *   <li><b>POST /login</b> — авторизация пользователя;</li>
+     *   <li><b>POST /register</b> — регистрация нового пользователя;</li>
+     *   <li><b>POST /logout</b> — завершение пользовательской сессии.</li>
+     * </ul>
+     *
+     * @param req  HTTP-запрос, содержащий JSON с учетными данными пользователя
+     *             или информацией для регистрации
+     * @param resp HTTP-ответ, содержащий результат операции или сообщение об ошибке
+     * @throws IOException если возникает ошибка при обработке запроса или записи ответа
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String path = req.getPathInfo(); // "/login" или "/register".
+        String path = req.getPathInfo(); // "/login", "/register", "/logout"
 
         if (path == null) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND, Map.of("error", "Unknown path"));
@@ -32,6 +47,7 @@ public class AuthServlet extends HttpServlet {
         switch (path) {
             case "/login" -> handleLogin(req, resp);
             case "/register" -> handleRegister(req, resp);
+            case "/logout" -> handleLogout(req, resp);
             default -> JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND, Map.of("error", "Unknown endpoint"));
         }
     }
@@ -62,5 +78,9 @@ public class AuthServlet extends HttpServlet {
         }
 
         JsonUtils.writeJson(resp, HttpServletResponse.SC_CREATED, Map.of("status", "created"));
+    }
+
+    private void handleLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        JsonUtils.writeJson(resp, HttpServletResponse.SC_OK, Map.of("status", "logged_out"));
     }
 }
