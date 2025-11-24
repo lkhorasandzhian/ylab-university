@@ -2,11 +2,9 @@ package ru.ylab.levon.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import javax.sql.DataSource;
 
 public class DatabaseConfig {
-
     public static DataSource createDataSource(
             String url,
             String username,

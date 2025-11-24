@@ -1,12 +1,12 @@
 package ru.ylab.levon.repository.jdbc;
 
-import ru.ylab.levon.model.AuditRecord;
-import ru.ylab.levon.repository.api.AuditRepository;
-
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
+import ru.ylab.levon.model.AuditRecord;
+import ru.ylab.levon.repository.api.AuditRepository;
 
 public class JdbcAuditRepository implements AuditRepository {
     private final DataSource dataSource;

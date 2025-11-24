@@ -1,11 +1,11 @@
 package ru.ylab.levon.web.util;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public final class JsonUtils {
     private static final ObjectMapper mapper = ObjectMapperFactory.get();

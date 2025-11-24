@@ -8,7 +8,6 @@ import ru.ylab.levon.model.User;
 
 @Mapper
 public interface UserMapper {
-
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     User toEntity(UserCreateDto dto);

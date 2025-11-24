@@ -1,10 +1,10 @@
 package ru.ylab.levon.web.util;
 
+import java.util.Set;
+
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ConstraintViolation;
-
-import java.util.Set;
 
 public class ValidatorUtils {
     @SuppressWarnings("resource")

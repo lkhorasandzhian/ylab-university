@@ -1,16 +1,15 @@
 package ru.ylab.levon.repository.jdbc;
 
-import ru.ylab.levon.model.Product;
-import ru.ylab.levon.repository.api.ProductRepository;
-
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class JdbcProductRepository implements ProductRepository {
+import javax.sql.DataSource;
+import ru.ylab.levon.model.Product;
+import ru.ylab.levon.repository.api.ProductRepository;
 
+public class JdbcProductRepository implements ProductRepository {
     private final DataSource dataSource;
 
     public JdbcProductRepository(DataSource dataSource) {

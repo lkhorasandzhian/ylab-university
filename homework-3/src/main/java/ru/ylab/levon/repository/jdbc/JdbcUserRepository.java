@@ -1,11 +1,11 @@
 package ru.ylab.levon.repository.jdbc;
 
+import java.sql.*;
+
+import javax.sql.DataSource;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.repository.api.UserRepository;
-
-import javax.sql.DataSource;
-import java.sql.*;
 
 public class JdbcUserRepository implements UserRepository {
 
