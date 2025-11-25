@@ -22,12 +22,12 @@ docker-compose up -d
 - database: ylabdb
 - user: ylab_user
 - password: ylab_pass
-- 
-  🧪 Тесты (Testcontainers)
+
+## 🧪 Тесты (Testcontainers)
 
 Тесты используют временный PostgreSQL внутри Docker, без подключения к рабочей базе.
 
-## Запуск тестов:
+### Запуск тестов:
 
 Тесты используют временный PostgreSQL внутри Docker, без подключения к рабочей базе.
 
