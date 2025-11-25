@@ -1,20 +1,42 @@
 package ru.ylab.levon.repository.jdbc;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.sql.SQLException;
+import javax.sql.DataSource;
+
 import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.repository.api.AuditRepository;
 
-import javax.sql.DataSource;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * JDBC-реализация {@link AuditRepository}, обеспечивающая
+ * сохранение и выборку записей аудита.
+ */
 public class JdbcAuditRepository implements AuditRepository {
     private final DataSource dataSource;
 
+    /**
+     * Создаёт репозиторий аудита на основе предоставленного {@link DataSource}.
+     *
+     * @param dataSource источник соединений с базой данных
+     */
     public JdbcAuditRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Добавляет новую запись аудита в базу данных.
+     * <p>
+     * Использует последовательность `domain.audit_seq` и возвращает
+     * сгенерированный идентификатор, который сохраняется в объекте {@link AuditRecord}.
+     *
+     * @param record запись аудита
+     * @throws RuntimeException при ошибке SQL
+     */
     @Override
     public void add(AuditRecord record) {
         String sql = """
@@ -41,6 +63,12 @@ public class JdbcAuditRepository implements AuditRepository {
         }
     }
 
+    /**
+     * Возвращает все записи аудита, отсортированные по ID в порядке возрастания.
+     *
+     * @return список всех записей аудита
+     * @throws RuntimeException при ошибке SQL
+     */
     @Override
     public List<AuditRecord> findAll() {
         String sql = "SELECT * FROM domain.audit_records ORDER BY id";
@@ -67,36 +95,4 @@ public class JdbcAuditRepository implements AuditRepository {
         return result;
     }
 
-    @Override
-    public List<AuditRecord> findLast(int count) {
-        String sql = """
-                    SELECT * FROM domain.audit_records
-                    ORDER BY id DESC
-                    LIMIT ?
-                """;
-
-        List<AuditRecord> result = new ArrayList<>();
-
-        try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, count);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                AuditRecord r = new AuditRecord(
-                        rs.getString("username"),
-                        rs.getString("action"),
-                        rs.getTimestamp("timestamp").toLocalDateTime()
-                );
-                r.setId(rs.getLong("id"));
-                result.add(r);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Не удалось получить последние записи аудита из БД", e);
-        }
-
-        return result;
-    }
 }

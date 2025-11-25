@@ -24,13 +24,4 @@ public interface AuditRepository {
      * @return список всех событий
      */
     List<AuditRecord> findAll();
-
-    /**
-     * Возвращает последние {@code count} записей аудита.
-     *
-     * @param count количество запрашиваемых записей
-     * @return список последних событий
-     */
-    List<AuditRecord> findLast(int count);
-
 }

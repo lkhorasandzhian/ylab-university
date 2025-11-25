@@ -20,7 +20,6 @@ import ru.ylab.levon.service.*;
  * Доступные операции зависят от роли текущего пользователя.
  */
 public class ConsoleMenu {
-
     private final CatalogService catalogService;
     private final UserService userService;
     private final AuditService auditService;
@@ -359,6 +358,13 @@ public class ConsoleMenu {
         return scanner.nextLine().trim();
     }
 
+    /**
+     * Считывает значение ID типа {@link Long}.
+     * Повторяет ввод до получения корректного числа.
+     *
+     * @param prompt текст приглашения
+     * @return валидное числовое значение
+     */
     private Long readLong(String prompt) {
         while (true) {
             System.out.print(prompt);

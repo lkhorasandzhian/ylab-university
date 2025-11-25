@@ -67,6 +67,13 @@ public class Main {
         menu.run();
     }
 
+    /**
+     * Загружает properties-файл из classpath.
+     *
+     * @param file имя файла конфигурации
+     * @return объект {@link Properties}, содержащий параметры конфигурации
+     * @throws RuntimeException если файл не найден или возникла ошибка чтения
+     */
     private static Properties loadProperties(@SuppressWarnings("SameParameterValue") String file) {
         try (InputStream is = Main.class.getClassLoader().getResourceAsStream(file)) {
             if (is == null) {
@@ -80,6 +87,13 @@ public class Main {
         }
     }
 
+    /**
+     * Инициализирует пул соединений HikariCP,
+     * применяя параметры из файла конфигурации.
+     *
+     * @param props объект с конфигурационными параметрами
+     * @return настроенный {@link HikariDataSource}
+     */
     private static HikariDataSource initDataSource(Properties props) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(props.getProperty("db.url"));
@@ -95,6 +109,13 @@ public class Main {
         return new HikariDataSource(config);
     }
 
+    /**
+     * Запускает применение Liquibase-миграций на основе параметров конфигурации.
+     *
+     * @param ds    пул соединений с базой данных
+     * @param props объект конфигурации, содержащий путь к changelog-файлу
+     * @throws RuntimeException при ошибках выполнения миграций
+     */
     private static void runMigrations(HikariDataSource ds, Properties props) {
         String changelog = props.getProperty("liquibase.changelog");
 

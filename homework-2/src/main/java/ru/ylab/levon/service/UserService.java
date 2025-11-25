@@ -96,14 +96,4 @@ public class UserService {
     public boolean isAdmin() {
         return currentUser != null && currentUser.getRole() == Role.ADMIN;
     }
-
-    /**
-     * Ищет пользователя по логину.
-     *
-     * @param username имя пользователя
-     * @return пользователь или {@code null}, если не найден
-     */
-    public User findUser(String username) {
-        return repository.findByUsername(username);
-    }
 }
