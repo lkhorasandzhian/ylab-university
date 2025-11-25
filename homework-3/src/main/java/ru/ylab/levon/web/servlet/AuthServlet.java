@@ -96,6 +96,7 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void handleLogout(HttpServletResponse resp) throws IOException {
+        userService.logout();
         JsonUtils.writeJson(resp, HttpServletResponse.SC_OK, Map.of("status", "logged_out"));
     }
 }
