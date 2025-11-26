@@ -17,10 +17,23 @@ import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
 import ru.ylab.levon.repository.jdbc.JdbcUserRepository;
 import ru.ylab.levon.service.*;
 
+/**
+ * Инициализатор контекста веб-приложения.
+ * <p>
+ * Загружает конфигурацию, создаёт DataSource, применяет миграции,
+ * инициализирует сервисы и сохраняет их в {@link ServletContext}
+ * для использования сервлетами.
+ */
 @WebListener
 public class ApplicationContextListener implements ServletContextListener {
     private HikariDataSource dataSource;
 
+    /**
+     * Запускается при старте веб-приложения.
+     * <p>
+     * Создаёт все необходимые инфраструктурные компоненты:
+     * репозитории, сервисы, кеши и выполняет миграции базы данных.
+     */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext ctx = sce.getServletContext();
@@ -55,6 +68,11 @@ public class ApplicationContextListener implements ServletContextListener {
         System.out.println("=== Application initialized successfully ===");
     }
 
+    /**
+     * Завершает работу приложения.
+     * <p>
+     * Освобождает ресурсы пула соединений HikariCP.
+     */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         if (dataSource != null) {
@@ -63,6 +81,12 @@ public class ApplicationContextListener implements ServletContextListener {
         }
     }
 
+    /**
+     * Загружает конфигурационный файл *.properties* из classpath.
+     *
+     * @param file название конфигурационного файла
+     * @return объект {@link Properties} с параметрами
+     */
     private Properties loadProperties(String file) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(file)) {
             if (is == null) {
@@ -76,6 +100,12 @@ public class ApplicationContextListener implements ServletContextListener {
         }
     }
 
+    /**
+     * Создаёт и настраивает пул соединений HikariCP.
+     *
+     * @param props конфигурационные свойства
+     * @return настроенный {@link HikariDataSource}
+     */
     private HikariDataSource initDataSource(Properties props) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(props.getProperty("db.url"));
@@ -89,6 +119,12 @@ public class ApplicationContextListener implements ServletContextListener {
         return new HikariDataSource(config);
     }
 
+    /**
+     * Применяет Liquibase-миграции к базе данных.
+     *
+     * @param ds    источник соединений
+     * @param props конфигурация приложения
+     */
     private void runMigrations(HikariDataSource ds, Properties props) {
         try {
             new CommandScope("update")

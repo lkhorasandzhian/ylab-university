@@ -23,6 +23,9 @@ public class ProductServlet extends HttpServlet {
     private CatalogService catalogService;
     private UserService userService;
 
+    /**
+     * Инициализация сервисов каталога и пользователей.
+     */
     @Override
     public void init() {
         catalogService = (CatalogService) getServletContext().getAttribute("catalogService");
@@ -258,6 +261,14 @@ public class ProductServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
+    /**
+     * Извлекает идентификатор продукта из пути запроса.
+     * <p>
+     * Например, из пути {@code /123} вернёт {@code "123"}.
+     *
+     * @param req HTTP-запрос
+     * @return строковый ID или {@code null}, если ID отсутствует
+     */
     private String extractId(HttpServletRequest req) {
         String path = req.getPathInfo();
         if (path == null || path.equals("/"))
@@ -265,6 +276,14 @@ public class ProductServlet extends HttpServlet {
         return path.substring(1);
     }
 
+    /**
+     * Проверяет корректность ID продукта, присутствие его в запросе и валидирует, что он является числом.
+     *
+     * @param req  HTTP-запрос
+     * @param resp HTTP-ответ для записи ошибок
+     * @return числовой ID или {@code null}, если он отсутствует или некорректен
+     * @throws IOException при записи JSON-ошибки
+     */
     private Long checkID(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String idStr = extractId(req);
         if (idStr == null) {
@@ -285,6 +304,13 @@ public class ProductServlet extends HttpServlet {
         return id;
     }
 
+    /**
+     * Проверяет, что пользователь авторизован.
+     *
+     * @param resp HTTP-ответ для вывода сообщения об ошибке
+     * @return true, если пользователь авторизован; иначе false
+     * @throws IOException при записи JSON-ошибки
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean ensureLoggedIn(HttpServletResponse resp) throws IOException {
         if (!userService.isLoggedIn()) {
@@ -295,6 +321,13 @@ public class ProductServlet extends HttpServlet {
         return true;
     }
 
+    /**
+     * Проверяет, что текущий пользователь обладает правами администратора.
+     *
+     * @param resp HTTP-ответ для вывода сообщения об ошибке
+     * @return true, если пользователь — администратор; иначе false
+     * @throws IOException при записи JSON-ошибки
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean ensureAdmin(HttpServletResponse resp) throws IOException {
         if (!userService.isAdmin()) {

@@ -4,9 +4,21 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
+/**
+ * Аспект для логирования времени выполнения методов сервисного слоя.
+ * <p>
+ * Перехватывает вызовы всех методов в пакете {@code ru.ylab.levon.service}
+ * и выводит в консоль время их выполнения.
+ */
 @Aspect
 public class LoggingAspect {
-
+    /**
+     * Логирует время выполнения метода.
+     *
+     * @param jp точка соединения, содержащая информацию о вызове
+     * @return результат выполнения метода
+     * @throws Throwable если перехватываемый метод выбрасывает исключение
+     */
     @Around("execution(* ru.ylab.levon.service..*(..))")
     public Object logTime(ProceedingJoinPoint jp) throws Throwable {
         long start = System.nanoTime();

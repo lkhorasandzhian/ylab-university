@@ -13,17 +13,32 @@ import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
 import ru.ylab.levon.web.util.ValidatorUtils;
 
+/**
+ * Сервлет, реализующий операции аутентификации и регистрации пользователей.
+ * <p>
+ * Поддерживаемые маршруты:
+ * <ul>
+ *     <li><b>POST /auth/login</b> — вход пользователя;</li>
+ *     <li><b>POST /auth/register</b> — регистрация нового пользователя;</li>
+ *     <li><b>POST /auth/logout</b> — выход из системы.</li>
+ * </ul>
+ * Все запросы принимают и возвращают JSON.
+ */
 @WebServlet(name = "AuthServlet", urlPatterns = {"/auth/*"})
 public class AuthServlet extends HttpServlet {
     private UserService userService;
 
+    /**
+     * Инициализирует сервис аутентификации,
+     * получая его из {@link jakarta.servlet.ServletContext}.
+     */
     @Override
     public void init() {
         userService = (UserService) getServletContext().getAttribute("userService");
     }
 
     /**
-     * Обрабатывает POST-запросы, связанные с аутентификацией пользователей.
+     * Обрабатывает POST-запросы на маршрутах авторизации, регистрации и выхода.
      *
      * <p>Поддерживаемые эндпоинты:</p>
      * <ul>
@@ -39,7 +54,7 @@ public class AuthServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String path = req.getPathInfo(); // "/login", "/register", "/logout"
+        String path = req.getPathInfo();
 
         if (path == null) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND, Map.of("error", "Unknown path"));
@@ -54,6 +69,9 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Обрабатывает вход пользователя по DTO логина.
+     */
     private void handleLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserLoginDto dto = JsonUtils.readJson(req, UserLoginDto.class);
 
@@ -74,6 +92,9 @@ public class AuthServlet extends HttpServlet {
         JsonUtils.writeJson(resp, HttpServletResponse.SC_OK, Map.of("status", "logged_in"));
     }
 
+    /**
+     * Обрабатывает регистрацию нового пользователя.
+     */
     private void handleRegister(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserCreateDto dto = JsonUtils.readJson(req, UserCreateDto.class);
 
@@ -95,6 +116,9 @@ public class AuthServlet extends HttpServlet {
         JsonUtils.writeJson(resp, HttpServletResponse.SC_CREATED, Map.of("status", "created"));
     }
 
+    /**
+     * Обрабатывает выход из аккаунта пользователя.
+     */
     private void handleLogout(HttpServletResponse resp) throws IOException {
         userService.logout();
         JsonUtils.writeJson(resp, HttpServletResponse.SC_OK, Map.of("status", "logged_out"));
