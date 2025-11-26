@@ -13,7 +13,6 @@ import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.mapper.ProductMapper;
 import ru.ylab.levon.model.Product;
-import ru.ylab.levon.model.Role;
 import ru.ylab.levon.service.CatalogService;
 import ru.ylab.levon.service.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
@@ -288,7 +287,7 @@ public class ProductServlet extends HttpServlet {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean ensureLoggedIn(HttpServletResponse resp) throws IOException {
-        if (userService.getCurrentUser() == null) {
+        if (!userService.isLoggedIn()) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_UNAUTHORIZED,
                     Map.of("error", "You must be logged in"));
             return false;
@@ -298,7 +297,7 @@ public class ProductServlet extends HttpServlet {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean ensureAdmin(HttpServletResponse resp) throws IOException {
-        if (userService.getCurrentUser().getRole() != Role.ADMIN) {
+        if (!userService.isAdmin()) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_FORBIDDEN,
                     Map.of("error", "Admin rights required"));
             return false;
