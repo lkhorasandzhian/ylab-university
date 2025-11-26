@@ -9,7 +9,7 @@
 ### Поднять PostgreSQL через Docker
 
 В корне проекта находится `docker-compose.yml`.  
-Запустить  контейнер:
+Запустить контейнер:
 
 ```sh
 docker-compose up -d
@@ -42,31 +42,31 @@ Liquibase автоматически применяет миграции при 
 ### 🛒 Products (товары)
 Доступно всем авторизованным пользователям (USER + ADMIN)
 
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/products` | Получить все товары |
-| GET | `/api/products/{id}` | Получить товар по ID |
-| GET | `/api/products?brand=X` | Фильтр по бренду |
-| GET | `/api/products?category=X` | Фильтр по категории |
-| GET | `/api/products?search=X` | Поиск по названию/описанию |
-| GET | `/api/products?minPrice=A&maxPrice=B` | Фильтр по цене |
+| Метод | Endpoint                              | Описание                   |
+|-------|---------------------------------------|----------------------------|
+| GET   | `/api/products`                       | Получить все товары        |
+| GET   | `/api/products/{id}`                  | Получить товар по ID       |
+| GET   | `/api/products?brand=X`               | Фильтр по бренду           |
+| GET   | `/api/products?category=X`            | Фильтр по категории        |
+| GET   | `/api/products?search=X`              | Поиск по названию/описанию |
+| GET   | `/api/products?minPrice=A&maxPrice=B` | Фильтр по цене             |
 
 ### 🧑‍💼 Только ADMIN
 
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| POST | `/api/products` | Создать новый товар |
-| PATCH | `/api/products/{id}` | Частичное обновление товара |
-| DELETE | `/api/products/{id}` | Удалить товар |
+| Метод  | Endpoint             | Описание                    |
+|--------|----------------------|-----------------------------|
+| POST   | `/api/products`      | Создать новый товар         |
+| PATCH  | `/api/products/{id}` | Частичное обновление товара |
+| DELETE | `/api/products/{id}` | Удалить товар               |
 
 ---
 
 ### 📜 Audit (аудит)
 
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/audit` | Все записи аудита |
-| GET | `/api/audit/last?count=N` | Последние N записей |
+| Метод | Endpoint                  | Описание            |
+|-------|---------------------------|---------------------|
+| GET   | `/api/audit`              | Все записи аудита   |
+| GET   | `/api/audit/last?count=N` | Последние N записей |
 
 
 ## Пример запросов
