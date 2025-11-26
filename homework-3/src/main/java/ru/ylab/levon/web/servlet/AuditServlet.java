@@ -30,46 +30,12 @@ public class AuditServlet extends HttpServlet {
             return;
         }
 
-        if (path.equals("/last")) {
-            handleGetLast(req, resp);
-            return;
-        }
-
         JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND,
                 Map.of("error", "Unknown audit endpoint"));
     }
 
     private void handleGetAll(HttpServletResponse resp) throws IOException {
         var records = auditService.getAll();
-        var dtoList = AuditMapper.INSTANCE.toDtoList(records);
-        JsonUtils.writeJson(resp, dtoList);
-    }
-
-    private void handleGetLast(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String countStr = req.getParameter("count");
-
-        if (countStr == null) {
-            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
-                    Map.of("error", "Missing 'count' query parameter"));
-            return;
-        }
-
-        int count;
-        try {
-            count = Integer.parseInt(countStr);
-        } catch (NumberFormatException e) {
-            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
-                    Map.of("error", "Parameter 'count' must be an integer"));
-            return;
-        }
-
-        if (count <= 0) {
-            JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
-                    Map.of("error", "'count' must be > 0"));
-            return;
-        }
-
-        var records = auditService.getLast(count);
         var dtoList = AuditMapper.INSTANCE.toDtoList(records);
         JsonUtils.writeJson(resp, dtoList);
     }

@@ -41,14 +41,4 @@ public class AuditService {
     public List<AuditRecord> getAll() {
         return repository.findAll();
     }
-
-    /**
-     * Возвращает последние {@code count} записей аудита.
-     *
-     * @param count количество необходимых записей
-     * @return список последних событий
-     */
-    public List<AuditRecord> getLast(int count) {
-        return repository.findLast(count);
-    }
 }

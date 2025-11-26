@@ -66,37 +66,4 @@ public class JdbcAuditRepository implements AuditRepository {
 
         return result;
     }
-
-    @Override
-    public List<AuditRecord> findLast(int count) {
-        String sql = """
-                    SELECT * FROM domain.audit_records
-                    ORDER BY id DESC
-                    LIMIT ?
-                """;
-
-        List<AuditRecord> result = new ArrayList<>();
-
-        try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, count);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                AuditRecord r = new AuditRecord(
-                        rs.getString("username"),
-                        rs.getString("action"),
-                        rs.getTimestamp("timestamp").toLocalDateTime()
-                );
-                r.setId(rs.getLong("id"));
-                result.add(r);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Не удалось получить последние записи аудита из БД", e);
-        }
-
-        return result;
-    }
 }
