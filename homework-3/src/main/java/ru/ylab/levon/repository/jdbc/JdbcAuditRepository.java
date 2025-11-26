@@ -1,20 +1,42 @@
 package ru.ylab.levon.repository.jdbc;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.sql.SQLException;
 import javax.sql.DataSource;
+
 import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.repository.api.AuditRepository;
 
+/**
+ * JDBC-реализация {@link AuditRepository}, обеспечивающая
+ * сохранение и выборку записей аудита.
+ */
 public class JdbcAuditRepository implements AuditRepository {
     private final DataSource dataSource;
 
+    /**
+     * Создаёт репозиторий аудита на основе предоставленного {@link DataSource}.
+     *
+     * @param dataSource источник соединений с базой данных
+     */
     public JdbcAuditRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Добавляет новую запись аудита в базу данных.
+     * <p>
+     * Использует последовательность `domain.audit_seq` и возвращает
+     * сгенерированный идентификатор, который сохраняется в объекте {@link AuditRecord}.
+     *
+     * @param record запись аудита
+     * @throws RuntimeException при ошибке SQL
+     */
     @Override
     public void add(AuditRecord record) {
         String sql = """
@@ -41,6 +63,12 @@ public class JdbcAuditRepository implements AuditRepository {
         }
     }
 
+    /**
+     * Возвращает все записи аудита, отсортированные по ID в порядке возрастания.
+     *
+     * @return список всех записей аудита
+     * @throws RuntimeException при ошибке SQL
+     */
     @Override
     public List<AuditRecord> findAll() {
         String sql = "SELECT * FROM domain.audit_records ORDER BY id";
