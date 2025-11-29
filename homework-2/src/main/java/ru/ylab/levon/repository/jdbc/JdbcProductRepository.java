@@ -18,6 +18,27 @@ import ru.ylab.levon.repository.api.ProductRepository;
  * с использованием SQL-запросов и {@link DataSource}.
  */
 public class JdbcProductRepository implements ProductRepository {
+    private static final String GET_PRODUCT_BY_ID =
+            "SELECT * FROM domain.product WHERE id=?";
+
+    private static final String DELETE_SQL =
+            "DELETE FROM domain.product WHERE id = ?";
+
+    private static final String GET_ALL_PRODUCTS_SQL =
+            "SELECT * FROM domain.product";
+
+    private static final String PUT_PRODUCT_SQL = """
+                INSERT INTO domain.product(id, name, category, brand, price, description)
+                VALUES (nextval('domain.product_seq'), ?, ?, ?, ?, ?)
+                RETURNING id
+            """;
+
+    private static final String UPDATE_PRODUCT_SQL = """
+                UPDATE domain.product
+                SET name=?, category=?, brand=?, price=?, description=?
+                WHERE id=?
+            """;
+
     private final DataSource dataSource;
 
     /**
@@ -55,11 +76,9 @@ public class JdbcProductRepository implements ProductRepository {
      */
     @Override
     public Product findById(Long id) {
-        String sql = "SELECT * FROM domain.product WHERE id=?";
-
         try (Connection conn = dataSource.getConnection()) {
 
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(GET_PRODUCT_BY_ID);
             ps.setLong(1, id);
 
             ResultSet rs = ps.executeQuery();
@@ -81,11 +100,9 @@ public class JdbcProductRepository implements ProductRepository {
      */
     @Override
     public void delete(Long id) {
-        String sql = "DELETE FROM domain.product WHERE id = ?";
-
         try (Connection conn = dataSource.getConnection()) {
 
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(DELETE_SQL);
             ps.setLong(1, id);
             ps.executeUpdate();
 
@@ -102,12 +119,10 @@ public class JdbcProductRepository implements ProductRepository {
      */
     @Override
     public Collection<Product> findAll() {
-        String sql = "SELECT * FROM domain.product";
-
         List<Product> list = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection()) {
-            ResultSet rs = conn.createStatement().executeQuery(sql);
+            ResultSet rs = conn.createStatement().executeQuery(GET_ALL_PRODUCTS_SQL);
 
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -129,14 +144,8 @@ public class JdbcProductRepository implements ProductRepository {
      * @throws RuntimeException при ошибках SQL
      */
     private void insert(Product product) {
-        String sql = """
-                    INSERT INTO domain.product(id, name, category, brand, price, description)
-                    VALUES (nextval('domain.product_seq'), ?, ?, ?, ?, ?)
-                    RETURNING id
-                """;
-
         try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(PUT_PRODUCT_SQL);
 
             fillCommonFields(ps, product);
 
@@ -157,14 +166,8 @@ public class JdbcProductRepository implements ProductRepository {
      * @throws RuntimeException при ошибках SQL
      */
     private void update(Product product) {
-        String sql = """
-                    UPDATE domain.product
-                    SET name=?, category=?, brand=?, price=?, description=?
-                    WHERE id=?
-                """;
-
         try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(UPDATE_PRODUCT_SQL);
 
             fillCommonFields(ps, product);
             ps.setLong(6, product.getId());
