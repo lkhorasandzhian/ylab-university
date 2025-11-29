@@ -75,12 +75,12 @@ public class Main {
      * @throws RuntimeException если файл не найден или возникла ошибка чтения
      */
     private static Properties loadProperties(@SuppressWarnings("SameParameterValue") String file) {
-        try (InputStream is = Main.class.getClassLoader().getResourceAsStream(file)) {
-            if (is == null) {
+        try (InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(file)) {
+            if (inputStream == null) {
                 throw new RuntimeException("Не найден файл конфигурации: " + file);
             }
             Properties props = new Properties();
-            props.load(is);
+            props.load(inputStream);
             return props;
         } catch (IOException e) {
             throw new RuntimeException("Ошибка загрузки конфигурации", e);
