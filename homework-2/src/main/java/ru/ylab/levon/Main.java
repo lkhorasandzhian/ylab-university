@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import ru.ylab.levon.config.ConfigKeys;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.model.Role;
@@ -96,9 +97,9 @@ public class Main {
      */
     private static HikariDataSource initDataSource(Properties props) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(props.getProperty("db.url"));
-        config.setUsername(props.getProperty("db.username"));
-        config.setPassword(props.getProperty("db.password"));
+        config.setJdbcUrl(props.getProperty(ConfigKeys.DB_URL));
+        config.setUsername(props.getProperty(ConfigKeys.DB_USERNAME));
+        config.setPassword(props.getProperty(ConfigKeys.DB_PASSWORD));
 
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
@@ -117,14 +118,14 @@ public class Main {
      * @throws RuntimeException при ошибках выполнения миграций
      */
     private static void runMigrations(HikariDataSource ds, Properties props) {
-        String changelog = props.getProperty("liquibase.changelog");
-
         try {
             new liquibase.command.CommandScope("update")
-                    .addArgumentValue("changeLogFile", changelog)
+                    .addArgumentValue("changeLogFile", props.getProperty(ConfigKeys.LIQUIBASE_CHANGELOG))
                     .addArgumentValue("url", ds.getJdbcUrl())
                     .addArgumentValue("username", ds.getUsername())
                     .addArgumentValue("password", ds.getPassword())
+                    .addArgumentValue("defaultSchemaName", props.getProperty(ConfigKeys.LIQUIBASE_DEFAULT_SCHEMA))
+                    .addArgumentValue("liquibaseSchemaName", props.getProperty(ConfigKeys.LIQUIBASE_SERVICE_SCHEMA))
                     .execute();
 
             System.out.println("Liquibase-миграции успешно применены.");
