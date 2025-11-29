@@ -10,8 +10,10 @@
 
         <!-- Product -->
         <createTable tableName="product" schemaName="domain">
-            <column name="id" type="BIGINT">
-                <constraints primaryKey="true"/>
+            <column name="id"
+                    type="BIGINT"
+                    defaultValueSequenceNext="product_seq">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -30,8 +32,10 @@
 
         <!-- USERS -->
         <createTable tableName="users" schemaName="domain">
-            <column name="id" type="BIGINT">
-                <constraints primaryKey="true"/>
+            <column name="id"
+                    type="BIGINT"
+                    defaultValueSequenceNext="users_seq">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="username" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
@@ -46,8 +50,10 @@
 
         <!-- Audit -->
         <createTable tableName="audit_records" schemaName="domain">
-            <column name="id" type="BIGINT">
-                <constraints primaryKey="true"/>
+            <column name="id"
+                    type="BIGINT"
+                    defaultValueSequenceNext="audit_seq">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="username" type="VARCHAR(255)">
                 <constraints nullable="false"/>
