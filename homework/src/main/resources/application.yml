@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: homework
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ylabdb
+    username: ylab_user
+    password: ylab_pass
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    change-log: classpath:db.changelog/db.changelog-master.xml
+    default-schema: domain
+    liquibase-schema: service
+
+logging:
+  level:
+    root: INFO
