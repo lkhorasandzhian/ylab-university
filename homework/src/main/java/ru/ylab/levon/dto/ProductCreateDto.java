@@ -19,9 +19,18 @@ import jakarta.validation.constraints.Positive;
  * @param description дополнительное описание товара (может быть {@code null})
  */
 public record ProductCreateDto(
-        @NotBlank String name,
-        @NotBlank String category,
-        @NotBlank String brand,
-        @NotNull @Positive BigDecimal price,
+        @NotBlank(message = "Product name cannot be blank")
+        String name,
+
+        @NotBlank(message = "Category cannot be blank")
+        String category,
+
+        @NotBlank(message = "Brand cannot be blank")
+        String brand,
+
+        @NotNull(message = "Price must be provided")
+        @Positive(message = "Price must be positive")
+        BigDecimal price,
+
         String description
 ) {}
