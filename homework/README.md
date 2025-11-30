@@ -164,3 +164,8 @@ Content-Type: application/json
 ```http request
 POST http://localhost:8080/api/auth/logout
 ```
+
+### Аспекты — Spring AOP
+Реализованы аспекты для:
+- Логирования времени работы методов в миллисекундах;
+- Аудита действий пользователя.
