@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.repository.api.AuditRepository;
 
@@ -16,6 +17,7 @@ import ru.ylab.levon.repository.api.AuditRepository;
  * JDBC-реализация {@link AuditRepository}, обеспечивающая
  * сохранение и выборку записей аудита.
  */
+@Repository
 public class JdbcAuditRepository implements AuditRepository {
     private final DataSource dataSource;
 

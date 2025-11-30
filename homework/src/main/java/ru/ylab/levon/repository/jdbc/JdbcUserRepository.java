@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.repository.api.UserRepository;
@@ -16,6 +17,7 @@ import ru.ylab.levon.repository.api.UserRepository;
  * Выполняет операции сохранения и поиска пользователей
  * с использованием подключённого {@link DataSource}.
  */
+@Repository
 public class JdbcUserRepository implements UserRepository {
     private final DataSource dataSource;
 

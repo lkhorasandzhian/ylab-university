@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.repository.api.ProductRepository;
 
@@ -17,6 +18,7 @@ import ru.ylab.levon.repository.api.ProductRepository;
  * сохранение, обновление, удаление и выборку продуктов
  * с использованием SQL-запросов и {@link DataSource}.
  */
+@Repository
 public class JdbcProductRepository implements ProductRepository {
     private static final String GET_PRODUCT_BY_ID = """
             SELECT * FROM domain.product WHERE id=?
