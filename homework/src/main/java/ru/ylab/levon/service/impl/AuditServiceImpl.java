@@ -2,6 +2,7 @@ package ru.ylab.levon.service.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.repository.api.AuditRepository;
 import ru.ylab.levon.service.api.AuditService;
@@ -12,6 +13,7 @@ import ru.ylab.levon.service.api.AuditService;
  * Позволяет фиксировать действия пользователей и получать историю
  * сохранённых событий.
  */
+@Service
 public class AuditServiceImpl implements AuditService {
     private final AuditRepository repository;
 

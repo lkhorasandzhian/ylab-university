@@ -1,6 +1,7 @@
 package ru.ylab.levon.service.impl;
 
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
@@ -14,6 +15,7 @@ import ru.ylab.levon.service.api.UserService;
  * Отвечает за регистрацию, аутентификацию, определение роли текущего пользователя
  * и доступ к хранилищу пользователей.
  */
+@Service
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final AuditService auditService;

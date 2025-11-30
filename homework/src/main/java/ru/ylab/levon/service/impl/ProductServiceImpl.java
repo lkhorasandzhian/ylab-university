@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.model.Product;
@@ -21,6 +22,7 @@ import ru.ylab.levon.service.api.UserService;
  * Предоставляет операции создания, поиска, обновления, удаления товаров,
  * а также кеширование результатов поисковых запросов.
  */
+@Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository repository;
     private final CacheService<String, List<Product>> cacheService;

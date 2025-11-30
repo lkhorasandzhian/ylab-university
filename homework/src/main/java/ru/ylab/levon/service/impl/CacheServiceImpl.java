@@ -1,9 +1,10 @@
 package ru.ylab.levon.service.impl;
 
-import ru.ylab.levon.service.api.CacheService;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import ru.ylab.levon.service.api.CacheService;
 
 /**
  * Универсальный сервис кеширования на основе {@link LinkedHashMap}.
@@ -14,11 +15,16 @@ import java.util.Map;
  * @param <K> тип ключей
  * @param <V> тип значений
  */
+@Service
 public class CacheServiceImpl<K, V> implements CacheService<K, V> {
     private static final float LOAD_FACTOR = 0.75f;
 
     private final int maxSize;
     private final Map<K, V> cache;
+
+    public CacheServiceImpl() {
+        this(20);
+    }
 
     /**
      * Создаёт новый кеш с ограничением по числу элементов.
