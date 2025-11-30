@@ -8,7 +8,6 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import ru.ylab.levon.config.AppConfig;
 import ru.ylab.levon.config.ConfigLoader;
-import ru.ylab.levon.service.*;
 
 /**
  * Инициализатор контекста веб-приложения.
@@ -37,7 +36,7 @@ public class ApplicationContextListener implements ServletContextListener {
 
         ctx.setAttribute("appConfig", config);
         ctx.setAttribute("userService", config.userService());
-        ctx.setAttribute("catalogService", config.catalogService());
+        ctx.setAttribute("productService", config.productService());
         ctx.setAttribute("auditService", config.auditService());
 
         System.out.println("=== Application initialized successfully ===");

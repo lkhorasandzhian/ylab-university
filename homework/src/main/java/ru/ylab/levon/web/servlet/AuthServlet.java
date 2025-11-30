@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.dto.UserLoginDto;
-import ru.ylab.levon.service.UserService;
+import ru.ylab.levon.service.api.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
 import ru.ylab.levon.web.util.ValidatorUtils;
 

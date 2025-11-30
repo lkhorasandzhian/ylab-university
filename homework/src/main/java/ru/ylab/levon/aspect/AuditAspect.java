@@ -3,8 +3,8 @@ package ru.ylab.levon.aspect;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import ru.ylab.levon.service.AuditService;
-import ru.ylab.levon.service.UserService;
+import ru.ylab.levon.service.impl.AuditServiceImpl;
+import ru.ylab.levon.service.impl.UserServiceImpl;
 
 /**
  * Аспект для автоматической записи аудита методов, помеченных аннотацией {@link Audit}.
@@ -13,8 +13,8 @@ import ru.ylab.levon.service.UserService;
  */
 @Aspect
 public class AuditAspect {
-    private static AuditService auditService;
-    private static UserService userService;
+    private static AuditServiceImpl auditService;
+    private static UserServiceImpl userService;
 
     /**
      * Инициализирует аспекты нужными сервисами.
@@ -22,7 +22,7 @@ public class AuditAspect {
      * @param a сервис аудита
      * @param u сервис пользователей (для получения текущего пользователя)
      */
-    public static void init(AuditService a, UserService u) {
+    public static void init(AuditServiceImpl a, UserServiceImpl u) {
         auditService = a;
         userService = u;
     }

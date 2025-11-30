@@ -1,4 +1,6 @@
-package ru.ylab.levon.service;
+package ru.ylab.levon.service.impl;
+
+import ru.ylab.levon.service.api.CacheService;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,7 +14,7 @@ import java.util.Map;
  * @param <K> тип ключей
  * @param <V> тип значений
  */
-public class CacheService<K, V> {
+public class CacheServiceImpl<K, V> implements CacheService<K, V> {
     private static final float LOAD_FACTOR = 0.75f;
 
     private final int maxSize;
@@ -23,12 +25,12 @@ public class CacheService<K, V> {
      *
      * @param maxSize максимальное количество записей
      */
-    public CacheService(int maxSize) {
+    public CacheServiceImpl(int maxSize) {
         this.maxSize = maxSize;
         this.cache = new LinkedHashMap<>(maxSize, LOAD_FACTOR, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-                return size() > CacheService.this.maxSize;
+                return size() > CacheServiceImpl.this.maxSize;
             }
         };
     }
@@ -39,6 +41,7 @@ public class CacheService<K, V> {
      * @param key ключ элемента
      * @return значение или {@code null}, если элемент отсутствует
      */
+    @Override
     public V get(K key) {
         return cache.get(key);
     }
@@ -49,6 +52,7 @@ public class CacheService<K, V> {
      * @param key   ключ элемента
      * @param value сохраняемое значение
      */
+    @Override
     public void put(K key, V value) {
         cache.put(key, value);
     }
@@ -59,6 +63,7 @@ public class CacheService<K, V> {
      * @param key ключ элемента
      * @return {@code true}, если элемент найден, иначе {@code false}
      */
+    @Override
     public boolean contains(K key) {
         return cache.containsKey(key);
     }
@@ -66,6 +71,7 @@ public class CacheService<K, V> {
     /**
      * Полностью очищает кеш.
      */
+    @Override
     public void clear() {
         cache.clear();
     }
@@ -75,6 +81,7 @@ public class CacheService<K, V> {
      *
      * @return размер кеша
      */
+    @Override
     public int size() {
         return cache.size();
     }

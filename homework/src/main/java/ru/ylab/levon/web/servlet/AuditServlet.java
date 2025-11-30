@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.ylab.levon.mapper.AuditMapper;
-import ru.ylab.levon.service.AuditService;
+import ru.ylab.levon.service.api.AuditService;
 import ru.ylab.levon.web.util.JsonUtils;
 
 /**

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,14 +14,14 @@ import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.mapper.ProductMapper;
 import ru.ylab.levon.model.Product;
-import ru.ylab.levon.service.CatalogService;
-import ru.ylab.levon.service.UserService;
+import ru.ylab.levon.service.api.ProductService;
+import ru.ylab.levon.service.api.UserService;
 import ru.ylab.levon.web.util.JsonUtils;
 import ru.ylab.levon.web.util.ValidatorUtils;
 
 @WebServlet(name = "ProductServlet", urlPatterns = {"/products/*"})
 public class ProductServlet extends HttpServlet {
-    private CatalogService catalogService;
+    private ProductService productService;
     private UserService userService;
 
     /**
@@ -28,7 +29,7 @@ public class ProductServlet extends HttpServlet {
      */
     @Override
     public void init() {
-        catalogService = (CatalogService) getServletContext().getAttribute("catalogService");
+        productService = (ProductService) getServletContext().getAttribute("productService");
         userService = (UserService) getServletContext().getAttribute("userService");
     }
 
@@ -68,7 +69,7 @@ public class ProductServlet extends HttpServlet {
 
         Product createdProduct;
         try {
-            createdProduct = catalogService.addProduct(dto);
+            createdProduct = productService.addProduct(dto);
         } catch (IllegalArgumentException e) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
                     Map.of("error", e.getMessage()));
@@ -124,7 +125,7 @@ public class ProductServlet extends HttpServlet {
                 return;
             }
 
-            Product product = catalogService.getProduct(id);
+            Product product = productService.getProduct(id);
 
             if (product == null) {
                 JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND,
@@ -145,11 +146,11 @@ public class ProductServlet extends HttpServlet {
         List<Product> result;
 
         if (brand != null) {
-            result = catalogService.findByBrand(brand);
+            result = productService.findByBrand(brand);
         } else if (category != null) {
-            result = catalogService.findByCategory(category);
+            result = productService.findByCategory(category);
         } else if (search != null) {
-            result = catalogService.search(search);
+            result = productService.search(search);
         } else if (minPriceStr != null && maxPriceStr != null) {
             BigDecimal min, max;
 
@@ -162,9 +163,9 @@ public class ProductServlet extends HttpServlet {
                 return;
             }
 
-            result = catalogService.findByPriceRange(min, max);
+            result = productService.findByPriceRange(min, max);
         } else {
-            result = catalogService.getAllProducts().stream().toList();
+            result = productService.getAllProducts().stream().toList();
         }
 
         JsonUtils.writeJson(resp, ProductMapper.INSTANCE.toDtoList(result));
@@ -182,7 +183,15 @@ public class ProductServlet extends HttpServlet {
      * @param resp HTTP-ответ с обновленным продуктом или кодом ошибки
      */
     @Override
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("PATCH".equalsIgnoreCase(req.getMethod())) {
+            doPatch(req, resp);
+            return;
+        }
+        super.service(req, resp);
+    }
+
+    private void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!ensureLoggedIn(resp) || !ensureAdmin(resp)) {
             return;
         }
@@ -211,7 +220,7 @@ public class ProductServlet extends HttpServlet {
 
         boolean updated;
         try {
-            updated = catalogService.updateProduct(id, dto);
+            updated = productService.updateProduct(id, dto);
         } catch (IllegalArgumentException e) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_BAD_REQUEST,
                     Map.of("error", e.getMessage()));
@@ -224,7 +233,7 @@ public class ProductServlet extends HttpServlet {
             return;
         }
 
-        Product product = catalogService.getProduct(id);
+        Product product = productService.getProduct(id);
         JsonUtils.writeJson(resp, ProductMapper.INSTANCE.toDto(product));
     }
 
@@ -250,14 +259,14 @@ public class ProductServlet extends HttpServlet {
             return;
         }
 
-        Product existing = catalogService.getProduct(id);
+        Product existing = productService.getProduct(id);
         if (existing == null) {
             JsonUtils.writeJson(resp, HttpServletResponse.SC_NOT_FOUND,
                     Map.of("error", "Product not found: " + id));
             return;
         }
 
-        catalogService.removeProduct(id);
+        productService.removeProduct(id);
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 

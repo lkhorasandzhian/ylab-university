@@ -1,9 +1,10 @@
-package ru.ylab.levon.service;
+package ru.ylab.levon.service.impl;
 
 import java.util.List;
 
 import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.repository.api.AuditRepository;
+import ru.ylab.levon.service.api.AuditService;
 
 /**
  * Сервис для работы с журналом аудита.
@@ -11,7 +12,7 @@ import ru.ylab.levon.repository.api.AuditRepository;
  * Позволяет фиксировать действия пользователей и получать историю
  * сохранённых событий.
  */
-public class AuditService {
+public class AuditServiceImpl implements AuditService {
     private final AuditRepository repository;
 
     /**
@@ -19,7 +20,7 @@ public class AuditService {
      *
      * @param repository репозиторий записей аудита
      */
-    public AuditService(AuditRepository repository) {
+    public AuditServiceImpl(AuditRepository repository) {
         this.repository = repository;
     }
 
@@ -29,6 +30,7 @@ public class AuditService {
      * @param username имя пользователя, совершившего действие
      * @param action   описание действия
      */
+    @Override
     public void log(String username, String action) {
         repository.add(new AuditRecord(username, action));
     }
@@ -38,6 +40,7 @@ public class AuditService {
      *
      * @return список всех событий
      */
+    @Override
     public List<AuditRecord> getAll() {
         return repository.findAll();
     }
