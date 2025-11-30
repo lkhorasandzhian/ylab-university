@@ -2,11 +2,11 @@ package ru.ylab.levon.service.impl;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import ru.ylab.levon.aspect.Audit;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
 import ru.ylab.levon.repository.api.UserRepository;
-import ru.ylab.levon.service.api.AuditService;
 import ru.ylab.levon.service.api.UserService;
 
 /**
@@ -18,7 +18,6 @@ import ru.ylab.levon.service.api.UserService;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
-    private final AuditService auditService;
 
     /**
      * Текущий авторизованный пользователь.
@@ -31,9 +30,8 @@ public class UserServiceImpl implements UserService {
      *
      * @param repository репозиторий пользователей
      */
-    public UserServiceImpl(UserRepository repository, AuditService auditService) {
+    public UserServiceImpl(UserRepository repository) {
         this.repository = repository;
-        this.auditService = auditService;
     }
 
     /**
@@ -48,6 +46,7 @@ public class UserServiceImpl implements UserService {
      * @throws IllegalArgumentException если логин или пароль пустые
      */
     @Override
+    @Audit("REGISTER")
     public boolean register(@NonNull UserCreateDto dto) {
         if (dto.username().isBlank()) {
             throw new IllegalArgumentException("Логин не может быть пустым.");
@@ -57,13 +56,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = new User(null, dto.username(), dto.password(), Role.USER);
-        boolean isSuccess = repository.save(user);
 
-        if (isSuccess) {
-            auditService.log(user.getUsername(), "REGISTER");
-        }
-
-        return isSuccess;
+        return repository.save(user);
     }
 
     /**
@@ -73,15 +67,11 @@ public class UserServiceImpl implements UserService {
      * {@code false}, если администратор уже существует
      */
     @Override
+    @Audit("REGISTER_ADMIN")
     public boolean registerAdmin() {
         User admin = new User(null, "admin", "admin", Role.ADMIN);
-        boolean isSuccess = repository.save(admin);
 
-        if (isSuccess) {
-            auditService.log(admin.getUsername(), "REGISTER_ADMIN");
-        }
-
-        return isSuccess;
+        return repository.save(admin);
     }
 
     /**
@@ -93,11 +83,11 @@ public class UserServiceImpl implements UserService {
      * {@code false}, если логин или пароль неверны
      */
     @Override
+    @Audit("LOGIN")
     public boolean login(@NonNull String username, @NonNull String password) {
         User user = repository.findByUsername(username);
         if (user != null && user.checkPassword(password)) {
             currentUser = user;
-            auditService.log(user.getUsername(), "LOGIN");
             return true;
         }
         return false;
@@ -107,10 +97,8 @@ public class UserServiceImpl implements UserService {
      * Выполняет выход текущего пользователя из системы.
      */
     @Override
+    @Audit("LOGOUT")
     public void logout() {
-        if (currentUser != null) {
-            auditService.log(currentUser.getUsername(), "LOGOUT");
-        }
         currentUser = null;
     }
 

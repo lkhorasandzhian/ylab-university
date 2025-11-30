@@ -7,14 +7,13 @@ import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import ru.ylab.levon.aspect.Audit;
 import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.repository.api.ProductRepository;
-import ru.ylab.levon.service.api.AuditService;
 import ru.ylab.levon.service.api.CacheService;
 import ru.ylab.levon.service.api.ProductService;
-import ru.ylab.levon.service.api.UserService;
 
 /**
  * Сервис для управления каталогом товаров.
@@ -26,8 +25,6 @@ import ru.ylab.levon.service.api.UserService;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository repository;
     private final CacheService<String, List<Product>> cacheService;
-    private final AuditService auditService;
-    private final UserService userService;
 
     /**
      * Создаёт сервис каталога.
@@ -35,14 +32,9 @@ public class ProductServiceImpl implements ProductService {
      * @param repository   репозиторий товаров
      * @param cacheService кеш для результатов поиска
      */
-    public ProductServiceImpl(ProductRepository repository,
-                              CacheService<String, List<Product>> cacheService,
-                              AuditService auditService,
-                              UserService userService) {
+    public ProductServiceImpl(ProductRepository repository, CacheService<String, List<Product>> cacheService) {
         this.repository = repository;
         this.cacheService = cacheService;
-        this.auditService = auditService;
-        this.userService = userService;
     }
 
     /**
@@ -55,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
      * @throws IllegalArgumentException если переданные поля некорректны
      */
     @Override
+    @Audit("CREATE_PRODUCT")
     public Product addProduct(@NonNull ProductCreateDto dto) {
         if (dto.name().isBlank()) {
             throw new IllegalArgumentException("Название товара не может быть пустым.");
@@ -80,9 +73,6 @@ public class ProductServiceImpl implements ProductService {
 
         repository.save(product);
         cacheService.clear();
-
-        auditService.log(userService.getCurrentUser().getUsername(),
-                "CREATE_PRODUCT id=" + product.getId());
 
         return product;
     }
@@ -114,10 +104,10 @@ public class ProductServiceImpl implements ProductService {
      * @param id идентификатор товара
      */
     @Override
+    @Audit("DELETE_PRODUCT")
     public void removeProduct(@NonNull Long id) {
         repository.delete(id);
         cacheService.clear();
-        auditService.log(userService.getCurrentUser().getUsername(), "DELETE_PRODUCT id=" + id);
     }
 
     /**
@@ -130,6 +120,7 @@ public class ProductServiceImpl implements ProductService {
      * @return {@code true}, если товар обновлён; {@code false}, если не найден
      */
     @Override
+    @Audit("UPDATE_PRODUCT")
     public boolean updateProduct(@NonNull Long id, @NonNull ProductUpdateDto dto) {
         Product p = repository.findById(id);
         if (p == null) {
@@ -166,8 +157,6 @@ public class ProductServiceImpl implements ProductService {
 
         repository.save(p);
         cacheService.clear();
-
-        auditService.log(userService.getCurrentUser().getUsername(), "UPDATE_PRODUCT id=" + id);
 
         return true;
     }
