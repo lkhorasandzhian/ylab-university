@@ -2,8 +2,8 @@ package ru.ylab.levon.aspect;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import ru.ylab.levon.service.api.AuditService;
 import ru.ylab.levon.service.api.UserService;
@@ -29,7 +29,7 @@ public class AuditAspect {
      * @param jp    точка соединения
      * @param audit аннотация с описанием действия
      */
-    @Before("@annotation(audit)")
+    @AfterReturning("@annotation(audit)")
     public void audit(JoinPoint jp, Audit audit) {
         var user = userService.getCurrentUser();
         if (user == null) {
