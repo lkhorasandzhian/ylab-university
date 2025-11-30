@@ -1,46 +1,43 @@
 package ru.ylab.levon.aspect;
 
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import ru.ylab.levon.service.impl.AuditServiceImpl;
-import ru.ylab.levon.service.impl.UserServiceImpl;
+import org.springframework.stereotype.Component;
+import ru.ylab.levon.service.api.AuditService;
+import ru.ylab.levon.service.api.UserService;
 
 /**
- * Аспект для автоматической записи аудита методов, помеченных аннотацией {@link Audit}.
+ * Аспект для автоматической записи аудита методов,
+ * помеченных аннотацией {@link Audit}.
  * <p>
- * Перехватывает вызов метода и фиксирует действие текущего пользователя.
+ * Перехватывает вызов метода и фиксирует действие
+ * текущего авторизованного пользователя.
  */
 @Aspect
+@Component
+@RequiredArgsConstructor
 public class AuditAspect {
-    private static AuditServiceImpl auditService;
-    private static UserServiceImpl userService;
+    private final AuditService auditService;
+    private final UserService userService;
 
     /**
-     * Инициализирует аспекты нужными сервисами.
+     * Выполняет запись аудита перед вызовом метода,
+     * помеченного @Audit.
      *
-     * @param a сервис аудита
-     * @param u сервис пользователей (для получения текущего пользователя)
-     */
-    public static void init(AuditServiceImpl a, UserServiceImpl u) {
-        auditService = a;
-        userService = u;
-    }
-
-    /**
-     * Выполняет аудит перед вызовом метода, помеченного {@link Audit}.
-     *
-     * @param jp    точка соединения, содержащая информацию о вызове
+     * @param jp    точка соединения
      * @param audit аннотация с описанием действия
      */
     @Before("@annotation(audit)")
     public void audit(JoinPoint jp, Audit audit) {
-        if (userService.getCurrentUser() == null) {
-            return;
+        var user = userService.getCurrentUser();
+        if (user == null) {
+            return; // Не логировать гостей.
         }
 
         auditService.log(
-                userService.getCurrentUser().getUsername(),
+                user.getUsername(),
                 audit.value()
         );
     }
