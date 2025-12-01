@@ -169,3 +169,10 @@ POST http://localhost:8080/api/auth/logout
 Реализованы аспекты для:
 - Логирования времени работы методов в миллисекундах;
 - Аудита действий пользователя.
+
+## Тестирование
+Добавлены WebMVC-тесты на следующие контроллеры:
+- HelloController.java
+- AuditController.java 
+- AuthController.java
+- ProductController.java
