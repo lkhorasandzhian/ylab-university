@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import com.zaxxer.hikari.HikariDataSource;
@@ -21,6 +22,7 @@ import ru.ylab.levon.model.Product;
  * применяет Liquibase-миграции и проверяет корректность
  * операций сохранения и поиска продукта.
  */
+@DisplayName("Интеграционные тесты JdbcProductRepository")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JdbcProductRepositoryTest {
     private PostgreSQLContainer<?> postgres;
@@ -71,6 +73,7 @@ public class JdbcProductRepositoryTest {
      * </ul>
      */
     @Test
+    @DisplayName("Сохранение и последующая загрузка продукта должны работать корректно")
     void testCreateAndFindProduct() {
         Product p = new Product(
                 null,
