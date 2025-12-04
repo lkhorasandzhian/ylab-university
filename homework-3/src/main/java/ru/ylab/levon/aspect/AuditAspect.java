@@ -14,8 +14,8 @@ import ru.ylab.levon.service.UserService;
  */
 @Aspect
 public class AuditAspect {
-    private static AuditService auditService;
-    private static UserService userService;
+    private AuditService auditService;
+    private UserService userService;
 
     /**
      * Инициализирует аспекты нужными сервисами.
@@ -23,7 +23,7 @@ public class AuditAspect {
      * @param a сервис аудита
      * @param u сервис пользователей (для получения текущего пользователя)
      */
-    public static void init(AuditService a, UserService u) {
+    public void init(AuditService a, UserService u) {
         auditService = a;
         userService = u;
     }

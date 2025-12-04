@@ -11,6 +11,8 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import liquibase.command.CommandScope;
+import org.aspectj.lang.Aspects;
+import ru.ylab.levon.aspect.AuditAspect;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.repository.jdbc.JdbcAuditRepository;
 import ru.ylab.levon.repository.jdbc.JdbcProductRepository;
@@ -53,6 +55,9 @@ public class ApplicationContextListener implements ServletContextListener {
 
         UserService userService = new UserService(userRepo, auditService);
         CatalogService catalogService = new CatalogService(productRepo, cacheService, auditService, userService);
+
+        AuditAspect auditAspect = Aspects.aspectOf(AuditAspect.class);
+        auditAspect.init(auditService, userService);
 
         System.out.println("Creating Administator...");
         if (userService.registerAdmin()) {
