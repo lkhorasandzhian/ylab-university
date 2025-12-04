@@ -3,6 +3,7 @@ package ru.ylab.levon.aspect;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import ru.ylab.levon.annotation.Audit;
 import ru.ylab.levon.service.AuditService;
 import ru.ylab.levon.service.UserService;
 
