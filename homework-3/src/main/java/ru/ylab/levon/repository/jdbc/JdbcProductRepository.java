@@ -1,0 +1,212 @@
+package ru.ylab.levon.repository.jdbc;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.sql.DataSource;
+
+import ru.ylab.levon.model.Product;
+import ru.ylab.levon.repository.api.ProductRepository;
+
+/**
+ * JDBC-реализация {@link ProductRepository}, обеспечивающая
+ * сохранение, обновление, удаление и выборку продуктов
+ * с использованием SQL-запросов и {@link DataSource}.
+ */
+public class JdbcProductRepository implements ProductRepository {
+    private final DataSource dataSource;
+
+    /**
+     * Создаёт репозиторий продуктов на основе переданного пула соединений.
+     *
+     * @param dataSource источник соединений с базой данных
+     */
+    public JdbcProductRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    /**
+     * Сохраняет продукт в БД.
+     * <p>
+     * Если у продукта отсутствует ID — выполняется вставка (insert).
+     * Если ID присутствует — выполняется обновление (update).
+     *
+     * @param product объект продукта
+     */
+    @Override
+    public void save(Product product) {
+        if (product.getId() == null) {
+            insert(product);
+        } else {
+            update(product);
+        }
+    }
+
+    /**
+     * Ищет продукт по его идентификатору.
+     *
+     * @param id идентификатор продукта
+     * @return найденный продукт или {@code null}, если продукт отсутствует
+     * @throws RuntimeException при ошибках SQL
+     */
+    @Override
+    public Product findById(Long id) {
+        String sql = "SELECT * FROM domain.product WHERE id=?";
+
+        try (Connection conn = dataSource.getConnection()) {
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, id);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось найти продукт", e);
+        }
+    }
+
+    /**
+     * Удаляет продукт по ID.
+     *
+     * @param id идентификатор продукта
+     * @throws RuntimeException при ошибках SQL
+     */
+    @Override
+    public void delete(Long id) {
+        String sql = "DELETE FROM domain.product WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection()) {
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось удалить продукт", e);
+        }
+    }
+
+    /**
+     * Возвращает список всех продуктов.
+     *
+     * @return коллекция всех продуктов
+     * @throws RuntimeException при ошибках SQL
+     */
+    @Override
+    public Collection<Product> findAll() {
+        String sql = "SELECT * FROM domain.product";
+
+        List<Product> list = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection()) {
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось получить список продуктов", e);
+        }
+
+        return list;
+    }
+
+    /**
+     * Выполняет вставку нового продукта в БД.
+     * <p>
+     * После успешного выполнения устанавливает ID, полученный через `RETURNING`.
+     *
+     * @param product продукт для добавления
+     * @throws RuntimeException при ошибках SQL
+     */
+    private void insert(Product product) {
+        String sql = """
+                    INSERT INTO domain.product(id, name, category, brand, price, description)
+                    VALUES (nextval('domain.product_seq'), ?, ?, ?, ?, ?)
+                    RETURNING id
+                """;
+
+        try (Connection conn = dataSource.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            fillCommonFields(ps, product);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                product.setId(rs.getLong("id"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось вставить продукт в БД", e);
+        }
+    }
+
+    /**
+     * Обновляет существующий продукт в БД.
+     *
+     * @param product продукт с обновлёнными данными
+     * @throws RuntimeException при ошибках SQL
+     */
+    private void update(Product product) {
+        String sql = """
+                    UPDATE domain.product
+                    SET name=?, category=?, brand=?, price=?, description=?
+                    WHERE id=?
+                """;
+
+        try (Connection conn = dataSource.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            fillCommonFields(ps, product);
+            ps.setLong(6, product.getId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось обновить продукт в БД", e);
+        }
+    }
+
+    /**
+     * Заполняет общие поля PreparedStatement,
+     * используемые как в INSERT, так и в UPDATE.
+     *
+     * @param ps      подготовленный SQL-запрос
+     * @param product продукт, из которого берутся данные
+     * @throws SQLException если установка параметров завершается ошибкой
+     */
+    private void fillCommonFields(PreparedStatement ps, Product product) throws SQLException {
+        ps.setString(1, product.getName());
+        ps.setString(2, product.getCategory());
+        ps.setString(3, product.getBrand());
+        ps.setBigDecimal(4, product.getPrice());
+        ps.setString(5, product.getDescription());
+    }
+
+    /**
+     * Преобразует строку результата SQL-запроса в объект {@link Product}.
+     *
+     * @param rs результирующий набор данных
+     * @return продукт, соответствующий строке результата
+     * @throws SQLException при ошибке чтения из ResultSet
+     */
+    private Product mapRow(ResultSet rs) throws SQLException {
+        return new Product(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("category"),
+                rs.getString("brand"),
+                rs.getBigDecimal("price"),
+                rs.getString("description")
+        );
+    }
+}

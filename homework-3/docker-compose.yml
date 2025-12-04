@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ylab_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ylabdb
+      POSTGRES_USER: ylab_user
+      POSTGRES_PASSWORD: ylab_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
