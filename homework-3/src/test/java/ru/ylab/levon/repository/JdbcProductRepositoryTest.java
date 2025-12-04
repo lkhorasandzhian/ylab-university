@@ -2,11 +2,11 @@ package ru.ylab.levon.repository;
 
 import java.math.BigDecimal;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import com.zaxxer.hikari.HikariDataSource;
@@ -83,13 +83,27 @@ public class JdbcProductRepositoryTest {
 
         repository.save(p);
 
-        Assertions.assertNotNull(p.getId(), "ID должен быть сгенерирован!");
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(p.getId())
+                .as("ID должен быть сгенерирован!")
+                .isNotNull();
 
         Product loaded = repository.findById(p.getId());
 
-        Assertions.assertNotNull(loaded);
-        Assertions.assertEquals("TestName", loaded.getName());
-        Assertions.assertEquals("BrandX", loaded.getBrand());
+        softly.assertThat(loaded)
+                .as("Продукт должен быть найден в базе")
+                .isNotNull();
+
+        if (loaded != null) {
+            softly.assertThat(loaded.getName()).isEqualTo("TestName");
+            softly.assertThat(loaded.getBrand()).isEqualTo("BrandX");
+            softly.assertThat(loaded.getCategory()).isEqualTo("TestCategory");
+            softly.assertThat(loaded.getPrice()).isEqualByComparingTo("123.45");
+            softly.assertThat(loaded.getDescription()).isEqualTo("desc");
+        }
+
+        softly.assertAll();
     }
 
     /**
