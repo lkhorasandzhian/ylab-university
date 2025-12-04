@@ -3,4 +3,4 @@
 
 1. [ДЗ №1](https://github.com/lkhorasandzhian/ylab-university/pull/1) 
 2. [ДЗ №2](https://github.com/lkhorasandzhian/ylab-university/pull/2)
-3. ДЗ №3 — TODO: Удалить папку homework-1 из ветки homework-3!
+3. [ДЗ №3](https://github.com/lkhorasandzhian/ylab-university/pull/3)
