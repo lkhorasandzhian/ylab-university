@@ -44,15 +44,15 @@ public class ApplicationContextListener implements ServletContextListener {
 
         runMigrations(dataSource, props);
 
-        var userRepo = new JdbcUserRepository(dataSource);
-        var productRepo = new JdbcProductRepository(dataSource);
-        var auditRepo = new JdbcAuditRepository(dataSource);
+        JdbcUserRepository userRepo = new JdbcUserRepository(dataSource);
+        JdbcProductRepository productRepo = new JdbcProductRepository(dataSource);
+        JdbcAuditRepository auditRepo = new JdbcAuditRepository(dataSource);
 
-        var cacheService = new CacheService<String, List<Product>>(20);
-        var auditService = new AuditService(auditRepo);
+        CacheService<String, List<Product>> cacheService = new CacheService<>(20);
+        AuditService auditService = new AuditService(auditRepo);
 
-        var userService = new UserService(userRepo, auditService);
-        var catalogService = new CatalogService(productRepo, cacheService, auditService, userService);
+        UserService userService = new UserService(userRepo, auditService);
+        CatalogService catalogService = new CatalogService(productRepo, cacheService, auditService, userService);
 
         System.out.println("Creating Administator...");
         if (userService.registerAdmin()) {
