@@ -26,9 +26,9 @@ public class AppContextFactory {
         CacheService<String, List<Product>> cache = new CacheService<>(20);
         AuditService auditService = new AuditService(auditRepo);
 
-        UserService userService = new UserService(userRepo, auditService);
+        UserService userService = new UserService(userRepo);
         CatalogService catalogService =
-                new CatalogService(productRepo, cache, auditService, userService);
+                new CatalogService(productRepo, cache);
 
         return new AppContext(userService, catalogService, auditService);
     }

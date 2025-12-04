@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
+import ru.ylab.levon.annotation.Audit;
 import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.model.Product;
@@ -20,8 +21,6 @@ import ru.ylab.levon.repository.api.ProductRepository;
 public class CatalogService {
     private final ProductRepository repository;
     private final CacheService<String, List<Product>> cacheService;
-    private final AuditService auditService;
-    private final UserService userService;
 
     /**
      * Создаёт сервис каталога.
@@ -30,13 +29,9 @@ public class CatalogService {
      * @param cacheService кеш для результатов поиска
      */
     public CatalogService(ProductRepository repository,
-                          CacheService<String, List<Product>> cacheService,
-                          AuditService auditService,
-                          UserService userService) {
+                          CacheService<String, List<Product>> cacheService) {
         this.repository = repository;
         this.cacheService = cacheService;
-        this.auditService = auditService;
-        this.userService = userService;
     }
 
     /**
@@ -48,6 +43,7 @@ public class CatalogService {
      * @return созданный продукт
      * @throws IllegalArgumentException если переданные поля некорректны
      */
+    @Audit("CREATE_PRODUCT")
     public Product addProduct(@NonNull ProductCreateDto dto) {
         if (dto.name().isBlank()) {
             throw new IllegalArgumentException("Название товара не может быть пустым.");
@@ -73,9 +69,6 @@ public class CatalogService {
 
         repository.save(product);
         cacheService.clear();
-
-        auditService.log(userService.getCurrentUser().getUsername(),
-                "CREATE_PRODUCT id=" + product.getId());
 
         return product;
     }
@@ -104,10 +97,10 @@ public class CatalogService {
      *
      * @param id идентификатор товара
      */
+    @Audit("DELETE_PRODUCT")
     public void removeProduct(@NonNull Long id) {
         repository.delete(id);
         cacheService.clear();
-        auditService.log(userService.getCurrentUser().getUsername(), "DELETE_PRODUCT id=" + id);
     }
 
     /**
@@ -119,6 +112,7 @@ public class CatalogService {
      * @param dto обновляемые поля
      * @return {@code true}, если товар обновлён; {@code false}, если не найден
      */
+    @Audit("UPDATE_PRODUCT")
     public boolean updateProduct(@NonNull Long id, @NonNull ProductUpdateDto dto) {
         Product p = repository.findById(id);
         if (p == null) {
@@ -155,8 +149,6 @@ public class CatalogService {
 
         repository.save(p);
         cacheService.clear();
-
-        auditService.log(userService.getCurrentUser().getUsername(), "UPDATE_PRODUCT id=" + id);
 
         return true;
     }
