@@ -26,7 +26,6 @@ public class Product {
     private @NonNull String category;
     private @NonNull String brand;
     private BigDecimal price;
-    @Setter
     private String description;
 
     /**
