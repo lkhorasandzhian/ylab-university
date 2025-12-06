@@ -27,6 +27,8 @@ docker-compose up -d
 Приложение разворачивается как JAR и доступно через Swagger UI.
 Liquibase автоматически применяет миграции при старте.
 
+Ссылка на Swagger UI: http://localhost:8080/swagger-ui/index.html
+
 По умолчанию создается admin с правами ADMINISTRATOR.  
 Данные для входа: admin/admin.
 
