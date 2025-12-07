@@ -1,8 +1,17 @@
-# Homework 4 — Знакомство с Spring Framework
+# Homework 5 — Многомодульный проект с Maven на Spring Boot
 
-Домашнее задание по теме **"Spring Framework"**.  
+Домашнее задание по теме **"Multi-Module Project With Maven on Spring Boot"**.  
 
 ---
+
+## Структура модулей проекта
+
+Проект построен как multi-module Maven система и состоит из трёх модулей:  
+TODO: тут должна быть схема
+
+Стартеры инкапсулируют аудит и логирование в отдельные модули `audit-starter` и `logging-starter`, соответственно.  
+Модуль `app` содержит только реализации необходимых интерфейсов (`AuditHandlerImpl`, `CurrentUserProviderImpl`)
+и подключает стартеры как зависимости.
 
 ## Как запустить проект
 
