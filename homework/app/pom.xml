@@ -78,17 +78,6 @@
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Starters -->
-        <dependency>
-            <groupId>ru.ylab.levon</groupId>
-            <artifactId>audit-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ru.ylab.levon</groupId>
-            <artifactId>logging-starter</artifactId>
-        </dependency>
-
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -106,6 +95,16 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.ylab.levon</groupId>
+            <artifactId>logging-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.ylab.levon</groupId>
+            <artifactId>audit-starter</artifactId>
         </dependency>
     </dependencies>
 
