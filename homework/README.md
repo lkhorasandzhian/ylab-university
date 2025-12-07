@@ -7,6 +7,7 @@
 ## Структура модулей проекта
 
 ### Схема
+![Project Modules Diagram](../diagrams/project_modules_diagram.png)
 
 ### Описание
 Проект организован в виде многомодульной структуры Maven.
