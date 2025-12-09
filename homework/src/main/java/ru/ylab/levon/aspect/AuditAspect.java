@@ -33,7 +33,7 @@ public class AuditAspect {
     public void audit(JoinPoint jp, Audit audit) {
         var user = userService.getCurrentUser();
         if (user == null) {
-            return; // Не логировать гостей.
+            return;
         }
 
         auditService.log(
