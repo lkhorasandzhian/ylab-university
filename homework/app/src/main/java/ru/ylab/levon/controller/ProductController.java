@@ -1,6 +1,5 @@
 package ru.ylab.levon.controller;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.ylab.levon.dto.ProductCreateDto;
+import ru.ylab.levon.dto.ProductFilterDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.mapper.ProductMapper;
 import ru.ylab.levon.model.Product;
@@ -84,12 +84,7 @@ public class ProductController {
      * @return 200 OK — список товаров
      */
     @GetMapping
-    public ResponseEntity<?> getAll(
-            @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice) {
+    public ResponseEntity<?> getAll(@Valid @ModelAttribute ProductFilterDto dto) {
         var loginError = requireLogin();
         if (loginError != null) {
             return loginError;
@@ -97,14 +92,14 @@ public class ProductController {
 
         List<Product> result;
 
-        if (brand != null) {
-            result = productService.findByBrand(brand);
-        } else if (category != null) {
-            result = productService.findByCategory(category);
-        } else if (search != null) {
-            result = productService.search(search);
-        } else if (minPrice != null && maxPrice != null) {
-            result = productService.findByPriceRange(minPrice, maxPrice);
+        if (dto.brand() != null) {
+            result = productService.findByBrand(dto.brand());
+        } else if (dto.category() != null) {
+            result = productService.findByCategory(dto.category());
+        } else if (dto.search() != null) {
+            result = productService.search(dto.search());
+        } else if (dto.minPrice() != null && dto.maxPrice() != null) {
+            result = productService.findByPriceRange(dto.minPrice(), dto.maxPrice());
         } else {
             result = productService.getAllProducts().stream().toList();
         }

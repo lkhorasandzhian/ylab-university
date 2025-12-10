@@ -1,11 +1,14 @@
 package ru.ylab.levon.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.ylab.levon.dto.AuditRecordDto;
 import ru.ylab.levon.mapper.AuditMapper;
+import ru.ylab.levon.model.AuditRecord;
 import ru.ylab.levon.service.api.AuditService;
 import ru.ylab.levon.service.api.UserService;
 
@@ -40,8 +43,8 @@ public class AuditController {
                     .body(Map.of("error", "You must be logged in"));
         }
 
-        var records = auditService.getAll();
-        var dtoList = AuditMapper.INSTANCE.toDtoList(records);
+        List<AuditRecord> records = auditService.getAll();
+        List<AuditRecordDto> dtoList = AuditMapper.INSTANCE.toDtoList(records);
 
         return ResponseEntity.ok(dtoList);
     }
