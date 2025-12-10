@@ -1,4 +1,4 @@
-package ru.ylab.levon.aspect;
+package ru.ylab.levon.audit;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

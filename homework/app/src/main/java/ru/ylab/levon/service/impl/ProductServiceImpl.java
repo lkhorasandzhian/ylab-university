@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
-import ru.ylab.levon.aspect.Audit;
+import ru.ylab.levon.audit.Audit;
 import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.model.Product;
