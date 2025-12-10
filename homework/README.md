@@ -1,6 +1,6 @@
-# Homework 3 — Сервлеты, АОП
+# Homework 4 — Знакомство с Spring Framework
 
-Домашнее задание по теме **"Сервлеты. АОП"**.  
+Домашнее задание по теме **"Spring Framework"**.  
 
 ---
 
@@ -22,12 +22,19 @@ docker-compose up -d
 - user: ylab_user
 - password: ylab_pass
 
-### Запуск приложения (Tomcat)
+### Запуск приложения (Swagger)
 
-Приложение разворачивается как WAR и запускается через Apache Tomcat.
+Приложение разворачивается как JAR и доступно через Swagger UI.
 Liquibase автоматически применяет миграции при старте.
 
+Ссылка на Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+По умолчанию создается admin с правами ADMINISTRATOR.  
+Данные для входа: admin/admin.
+
 ## 📚 REST API — Полная таблица эндпоинтов
+Приложение доступно по ссылке:
+http://localhost:8080/swagger-ui/index.html
 
 ### 🔐 Auth (аутентификация)
 
@@ -159,3 +166,15 @@ Content-Type: application/json
 ```http request
 POST http://localhost:8080/api/auth/logout
 ```
+
+## Аспекты — Spring AOP
+Реализованы аспекты для:
+- Логирования времени работы методов в миллисекундах;
+- Аудита действий пользователя.
+
+## Тестирование
+Добавлены WebMVC-тесты на следующие контроллеры:
+- HelloController.java
+- AuditController.java 
+- AuthController.java
+- ProductController.java

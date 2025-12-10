@@ -19,9 +19,12 @@ import jakarta.validation.constraints.Size;
  * @param description новое описание (или {@code null})
  */
 public record ProductUpdateDto(
-        @Size(min = 1) String name,
-        @Size(min = 1) String category,
-        @Size(min = 1) String brand,
-        @Positive BigDecimal price,
+        String name,
+        String category,
+        String brand,
+
+        @Positive(message = "Price must be positive")
+        BigDecimal price,
+
         String description
 ) {}

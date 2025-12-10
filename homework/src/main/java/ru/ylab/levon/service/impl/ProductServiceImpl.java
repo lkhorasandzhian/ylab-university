@@ -1,4 +1,4 @@
-package ru.ylab.levon.service;
+package ru.ylab.levon.service.impl;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -6,10 +6,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
+import ru.ylab.levon.aspect.Audit;
 import ru.ylab.levon.dto.ProductCreateDto;
 import ru.ylab.levon.dto.ProductUpdateDto;
 import ru.ylab.levon.model.Product;
 import ru.ylab.levon.repository.api.ProductRepository;
+import ru.ylab.levon.service.api.CacheService;
+import ru.ylab.levon.service.api.ProductService;
 
 /**
  * Сервис для управления каталогом товаров.
@@ -17,11 +21,10 @@ import ru.ylab.levon.repository.api.ProductRepository;
  * Предоставляет операции создания, поиска, обновления, удаления товаров,
  * а также кеширование результатов поисковых запросов.
  */
-public class CatalogService {
+@Service
+public class ProductServiceImpl implements ProductService {
     private final ProductRepository repository;
     private final CacheService<String, List<Product>> cacheService;
-    private final AuditService auditService;
-    private final UserService userService;
 
     /**
      * Создаёт сервис каталога.
@@ -29,14 +32,9 @@ public class CatalogService {
      * @param repository   репозиторий товаров
      * @param cacheService кеш для результатов поиска
      */
-    public CatalogService(ProductRepository repository,
-                          CacheService<String, List<Product>> cacheService,
-                          AuditService auditService,
-                          UserService userService) {
+    public ProductServiceImpl(ProductRepository repository, CacheService<String, List<Product>> cacheService) {
         this.repository = repository;
         this.cacheService = cacheService;
-        this.auditService = auditService;
-        this.userService = userService;
     }
 
     /**
@@ -48,6 +46,8 @@ public class CatalogService {
      * @return созданный продукт
      * @throws IllegalArgumentException если переданные поля некорректны
      */
+    @Override
+    @Audit("CREATE_PRODUCT")
     public Product addProduct(@NonNull ProductCreateDto dto) {
         if (dto.name().isBlank()) {
             throw new IllegalArgumentException("Название товара не может быть пустым.");
@@ -74,9 +74,6 @@ public class CatalogService {
         repository.save(product);
         cacheService.clear();
 
-        auditService.log(userService.getCurrentUser().getUsername(),
-                "CREATE_PRODUCT id=" + product.getId());
-
         return product;
     }
 
@@ -86,6 +83,7 @@ public class CatalogService {
      * @param id идентификатор товара
      * @return товар или {@code null}, если не найден
      */
+    @Override
     public Product getProduct(@NonNull Long id) {
         return repository.findById(id);
     }
@@ -95,6 +93,7 @@ public class CatalogService {
      *
      * @return коллекция всех товаров
      */
+    @Override
     public Collection<Product> getAllProducts() {
         return repository.findAll();
     }
@@ -104,10 +103,11 @@ public class CatalogService {
      *
      * @param id идентификатор товара
      */
+    @Override
+    @Audit("DELETE_PRODUCT")
     public void removeProduct(@NonNull Long id) {
         repository.delete(id);
         cacheService.clear();
-        auditService.log(userService.getCurrentUser().getUsername(), "DELETE_PRODUCT id=" + id);
     }
 
     /**
@@ -119,6 +119,8 @@ public class CatalogService {
      * @param dto обновляемые поля
      * @return {@code true}, если товар обновлён; {@code false}, если не найден
      */
+    @Override
+    @Audit("UPDATE_PRODUCT")
     public boolean updateProduct(@NonNull Long id, @NonNull ProductUpdateDto dto) {
         Product p = repository.findById(id);
         if (p == null) {
@@ -156,8 +158,6 @@ public class CatalogService {
         repository.save(p);
         cacheService.clear();
 
-        auditService.log(userService.getCurrentUser().getUsername(), "UPDATE_PRODUCT id=" + id);
-
         return true;
     }
 
@@ -169,6 +169,7 @@ public class CatalogService {
      * @param category категория товаров
      * @return список найденных товаров
      */
+    @Override
     public List<Product> findByCategory(@NonNull String category) {
         String key = "category:" + category.toLowerCase();
         if (cacheService.contains(key)) {
@@ -191,6 +192,7 @@ public class CatalogService {
      * @param brand бренд товара
      * @return список найденных товаров
      */
+    @Override
     public List<Product> findByBrand(@NonNull String brand) {
         String key = "brand:" + brand.toLowerCase();
         if (cacheService.contains(key)) {
@@ -214,6 +216,7 @@ public class CatalogService {
      * @param maxPrice максимальная цена
      * @return список товаров в выбранном диапазоне
      */
+    @Override
     public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         String key = "range:" + minPrice + "-" + maxPrice;
         if (cacheService.contains(key)) {
@@ -237,6 +240,7 @@ public class CatalogService {
      * @param keyword ключевое слово
      * @return список товаров, содержащих ключевое слово
      */
+    @Override
     public List<Product> search(@NonNull String keyword) {
         String key = "search:" + keyword.toLowerCase();
         if (cacheService.contains(key)) {
