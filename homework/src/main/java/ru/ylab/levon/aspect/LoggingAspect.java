@@ -1,8 +1,9 @@
-package ru.ylab.levon.logging;
+package ru.ylab.levon.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
 
 /**
  * Аспект для логирования времени выполнения методов сервисного слоя.
@@ -11,6 +12,7 @@ import org.aspectj.lang.annotation.Aspect;
  * и выводит в консоль время их выполнения.
  */
 @Aspect
+@Component
 public class LoggingAspect {
     /**
      * Логирует время выполнения метода.

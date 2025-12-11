@@ -2,7 +2,7 @@ package ru.ylab.levon.service.impl;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
-import ru.ylab.levon.audit.Audit;
+import ru.ylab.levon.aspect.Audit;
 import ru.ylab.levon.dto.UserCreateDto;
 import ru.ylab.levon.model.Role;
 import ru.ylab.levon.model.User;
@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
      * @throws IllegalArgumentException если логин или пароль пустые
      */
     @Override
+    @Audit("REGISTER")
     public boolean register(@NonNull UserCreateDto dto) {
         if (dto.username().isBlank()) {
             throw new IllegalArgumentException("Логин не может быть пустым.");
@@ -66,6 +67,7 @@ public class UserServiceImpl implements UserService {
      * {@code false}, если администратор уже существует
      */
     @Override
+    @Audit("REGISTER_ADMIN")
     public boolean registerAdmin() {
         User admin = new User(null, "admin", "admin", Role.ADMIN);
 
