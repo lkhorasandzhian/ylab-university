@@ -45,3 +45,5 @@
 ## Результат
 По завершению выполнения домашних заданий и запрашиваемых доработок согласно советам преподавателей интенсив успешно пройден:
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/ae574be1-e7cf-4822-8c28-713d60ee4553" />
+
+Сертификат о прохождении курса: [YLab Course Certificate (PDF)](certificate.pdf)
