@@ -99,7 +99,7 @@ class AuthControllerTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("Password must be at least 3 characters long"));
+                .andExpect(jsonPath("$.details[0]").value("Password must be at least 3 characters long"));
     }
 
     @Test
