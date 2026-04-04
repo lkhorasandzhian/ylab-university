@@ -39,3 +39,12 @@ serialize_data/
 
 # Postgres Data Folder
 postgres-data/
+
+### Eclipse ###
+.metadata/
+.project
+.classpath
+.settings/
+.loadpath
+*.launch
+bin/
